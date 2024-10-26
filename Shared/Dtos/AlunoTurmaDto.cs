@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Domain.Entities;
 
 namespace Shared.Dtos
 {
@@ -25,5 +26,12 @@ namespace Shared.Dtos
 
         [JsonPropertyName("nota")]
         public required double Nota { get; set; }
+
+        public bool Match(AlunoTurma alunoTurma)
+        {
+            return AlunoMatricula == alunoTurma.AlunoMatricula &&
+            TurmaCodigo == alunoTurma.TurmaCodigo
+            && Nota == alunoTurma.Nota;
+        }
     }
 }

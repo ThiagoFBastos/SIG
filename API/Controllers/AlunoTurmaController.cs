@@ -32,6 +32,13 @@ namespace API.Controllers
             return Ok(codigo);
         }
 
+        [HttpPut("student/{matricula}/from/{codigoTurma}")]
+        public async Task<IActionResult> Update([FromRoute] Guid matricula, [FromRoute] Guid codigoTurma, [FromBody] AlunoTurmaForUpdateDto alunoTurma)
+        {
+            AlunoTurmaDto resultado = await _alunoTurmaService.AlterarAlunoNaTurma(matricula, codigoTurma, alunoTurma);
+            return Ok(resultado);
+        }
+
         [HttpDelete("remove/{alunoMatricula}/from/{codigoTurma}")]
         public async Task<IActionResult> Delete([FromRoute] Guid alunoMatricula, [FromRoute] Guid codigoTurma)
         {
