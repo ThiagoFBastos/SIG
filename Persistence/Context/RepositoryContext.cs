@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
+using Domain.Entities.Users;
+using Shared.Utils;
 
 namespace Persistence.Context
 {
@@ -16,6 +18,7 @@ namespace Persistence.Context
         public DbSet<Endereco> Enderecos { get; private set; }
         public DbSet<AlunoTurma> AlunosTurmas { get; private set; }
 
+        public DbSet<UsuarioAdmin> UsuarioAdmins { get; private set; }
         public RepositoryContext(DbContextOptions<RepositoryContext> options) : base(options)
         {
 
@@ -120,7 +123,20 @@ namespace Persistence.Context
 
                 a.Property(a => a.DataChegada)
                 .HasDefaultValueSql("NOW()"); // caso seja sql server trocar
-            }); 
+            });
+
+            modelBuilder.Entity<UsuarioAdmin>(a =>
+            {
+                const string password = "15158114099";
+                string salString;
+
+                string passwordHash = PasswordHash.Encrypt(password, out salString);
+
+                a.HasIndex(a => a.Email)
+                    .IsUnique();
+
+                a.HasData(new UsuarioAdmin { Id = Guid.NewGuid(), Email = "agathadesouza@outlook.com", PasswordHash = passwordHash, SalString = salString });
+            });
 
             base.OnModelCreating(modelBuilder);
         }
