@@ -14,11 +14,16 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Shared.Options;
 
 namespace API.Extensions
 {
     public static class ServiceExtensions
     {
+        public static void ConfigureServiceOptions(this IServiceCollection services, IConfiguration config)
+        {
+            services.Configure<TokensServiceOptions>(config.GetSection("JWT"));
+        }
         public static void ConfigureJWT(this IServiceCollection services, IConfiguration config)
         {
             services.AddAuthentication(opt => {
@@ -73,6 +78,7 @@ namespace API.Extensions
             services.AddScoped<IEnderecoService, EnderecoService>();
             services.AddScoped<IProfessorService, ProfessorService>();
             services.AddScoped<ITurmaService, TurmaService>();
+            services.AddScoped<ITokensService, TokensService>();
         }
 
         public static void ConfigureValidators(this IServiceCollection services)
