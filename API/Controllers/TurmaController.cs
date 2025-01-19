@@ -28,7 +28,7 @@ namespace API.Controllers
 
             Guid codigo = await _turmaService.CadastrarTurma(turma);
 
-            return Ok(codigo);
+            return Ok(new GuidResponseDto(codigo));
         }
 
         [HttpPut("{codigo}")]

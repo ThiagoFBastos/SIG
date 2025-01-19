@@ -29,7 +29,7 @@ namespace API.Controllers
 
             Guid codigo = await _alunoTurmaService.CadastrarAlunoNaTurma(alunoTurma);
 
-            return Ok(codigo);
+            return Ok(new GuidResponseDto(codigo));
         }
 
         [HttpPut("student/{matricula}/from/{codigoTurma}")]

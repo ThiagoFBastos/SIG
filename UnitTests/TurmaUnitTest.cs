@@ -102,7 +102,7 @@ namespace UnitTests
 
             Assert.NotNull(okResponse);
 
-            Assert.IsType<Guid>(okResponse.Value);
+            Assert.True(okResponse.Value is GuidResponseDto);
 
             Assert.Equal(200, okResponse.StatusCode);
         }

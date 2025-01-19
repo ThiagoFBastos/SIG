@@ -20,6 +20,8 @@ using Microsoft.AspNetCore.Mvc;
 using Shared.Pagination;
 using Xunit.Abstractions;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace UnitTests
 {
@@ -31,6 +33,12 @@ namespace UnitTests
         private readonly IAdministrativoService _administrativoService;
         private readonly Mock<IEnderecoService> _enderecoService;
         private readonly ITestOutputHelper _output;
+
+        private class AdministrativoMatricula
+        {
+            public required Guid matricula { get; set; }
+        }
+
         public AdministrativoUnitTest(ITestOutputHelper output)
         {
             _output = output;
@@ -101,7 +109,7 @@ namespace UnitTests
 
             Assert.NotNull(okResponse);
             Assert.NotNull(okResponse.Value);
-            Assert.True(okResponse.Value is Guid);
+            Assert.True(okResponse.Value is GuidResponseDto);
             Assert.Equal(okResponse.StatusCode, 200);
         }
 

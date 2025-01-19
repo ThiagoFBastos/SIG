@@ -28,7 +28,7 @@ namespace API.Controllers
 
             Guid matricula = await _alunoService.CadastrarAluno(aluno);
 
-            return Ok(matricula);
+            return Ok(new GuidResponseDto(matricula));
         }
 
         [HttpPut("{matricula}")]

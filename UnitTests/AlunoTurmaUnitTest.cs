@@ -105,8 +105,7 @@ namespace UnitTests
             var okResponse = response as OkObjectResult;
 
             Assert.NotNull(okResponse);
-            Assert.IsType<Guid>(okResponse.Value);
-
+            Assert.True(okResponse.Value is GuidResponseDto);
             Assert.Equal(200, okResponse.StatusCode);
         } 
 

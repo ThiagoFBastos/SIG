@@ -100,7 +100,7 @@ namespace UnitTests
 
             Assert.NotNull(okResponse);
             Assert.NotNull(okResponse.Value);
-            Assert.True(okResponse.Value is Guid);
+            Assert.True(okResponse.Value is GuidResponseDto);
             Assert.Equal(okResponse.StatusCode, 200);
         }
 
