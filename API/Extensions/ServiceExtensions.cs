@@ -11,11 +11,33 @@ using System.Reflection;
 using Microsoft.OpenApi.Models;
 using Services.Mappers;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace API.Extensions
 {
     public static class ServiceExtensions
     {
+        public static void ConfigureJWT(this IServiceCollection services, IConfiguration config)
+        {
+            services.AddAuthentication(opt => {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options => 
+            {
+                 options.TokenValidationParameters = new TokenValidationParameters
+                 {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = "https://localhost:7208",
+                    ValidAudience = "https://localhost:7208",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:SecretKey"] ?? "ododod99e9933iirjjrhrhfd8f893u3hj"))
+                 };
+            });
+        }
         public static void ConfigureCors(this IServiceCollection services)
         { 
            services.AddCors(options =>

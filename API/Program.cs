@@ -15,6 +15,7 @@ builder.Services.ConfigureServices();
 builder.Services.ConfigureSqlContext(builder.Configuration);
 builder.Services.ConfigureCors();
 builder.Services.ConfigureJsonOptions();
+builder.Services.ConfigureJWT(builder.Configuration);
 
 var app = builder.Build();
 
