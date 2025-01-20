@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
 using Domain.Entities.Users;
-using Shared.Utils;
+using Services;
 
 namespace Persistence.Context
 {
@@ -129,8 +129,9 @@ namespace Persistence.Context
             {
                 const string password = "15158114099";
                 string salString;
+                PasswordHash hash = new PasswordHash();
 
-                string passwordHash = PasswordHash.Encrypt(password, out salString);
+                string passwordHash = hash.Encrypt(password, out salString);
 
                 a.HasIndex(a => a.Email)
                     .IsUnique();

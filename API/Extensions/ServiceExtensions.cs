@@ -81,6 +81,7 @@ namespace API.Extensions
             services.AddScoped<ITurmaService, TurmaService>();
             services.AddScoped<ITokensService, TokensService>();
             services.AddScoped<IUsuarioAdminService, UsuarioAdminService>();
+            services.AddScoped<IPasswordHash, PasswordHash>();
         }
 
         public static void ConfigureValidators(this IServiceCollection services)

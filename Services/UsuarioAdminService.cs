@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Services.Contracts;
 using Shared.Dtos;
 using Shared.Dtos.Abstract;
-using Shared.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,12 +26,14 @@ namespace Services
 
         private readonly IMapper _mapper;
 
-        public UsuarioAdminService(ILogger<UsuarioAdminService> logger, ITokensService tokensService, IRepositoryManager repositoryManager, IMapper mapper)
+        private readonly IPasswordHash _passwordHash;
+        public UsuarioAdminService(ILogger<UsuarioAdminService> logger, ITokensService tokensService, IRepositoryManager repositoryManager, IMapper mapper, IPasswordHash passwordHash)
         {
             _logger = logger;
             _tokensService = tokensService;
             _repositoryManager = repositoryManager;
             _mapper = mapper;
+            _passwordHash = passwordHash;
         }
 
         public async Task<string> Login(LoginUsuarioDto loginDto)
@@ -45,7 +46,7 @@ namespace Services
                 throw new UnauthorizedException($"email e/ou senha incorretos");
             }
 
-            if(!PasswordHash.Decrypt(loginDto.Password, usuarioAdmin.PasswordHash, usuarioAdmin.SalString))
+            if(!_passwordHash.Decrypt(loginDto.Password, usuarioAdmin.PasswordHash, usuarioAdmin.SalString))
             {
                 _logger.LogError($"o email: {loginDto.Email} e a senha: {loginDto.Password} não correspondem a um admin");
                 throw new UnauthorizedException($"email e/ou senha incorretos");
@@ -74,7 +75,7 @@ namespace Services
             UsuarioAdmin usuarioAdmin = _mapper.Map<UsuarioAdmin>(usuarioAdminDto);
             string saltString;
 
-            usuarioAdmin.PasswordHash = PasswordHash.Encrypt(usuarioAdminDto.Password, out saltString);
+            usuarioAdmin.PasswordHash = _passwordHash.Encrypt(usuarioAdminDto.Password, out saltString);
             usuarioAdmin.SalString = saltString;
 
             _repositoryManager.UsuarioAdminRepository.AddUsuarioAdmin(usuarioAdmin);
@@ -107,14 +108,14 @@ namespace Services
                 throw new NotFoundException("usuário não encontrado");
             }
 
-            if(!PasswordHash.Decrypt(changePasswordDto.OldPassword, usuarioAdmin.PasswordHash, usuarioAdmin.SalString))
+            if(!_passwordHash.Decrypt(changePasswordDto.OldPassword, usuarioAdmin.PasswordHash, usuarioAdmin.SalString))
             {
                 _logger.LogError($"o usuário de email: {usuarioAdmin.Email} não possui a senha: {changePasswordDto.OldPassword}");
                 throw new UnauthorizedException("senha incorreta");
             }
 
             string saltString;
-            usuarioAdmin.PasswordHash = PasswordHash.Encrypt(changePasswordDto.NewPassword, out saltString);
+            usuarioAdmin.PasswordHash = _passwordHash.Encrypt(changePasswordDto.NewPassword, out saltString);
             usuarioAdmin.SalString = saltString;
 
             _repositoryManager.UsuarioAdminRepository.UpdateUsuarioAdmin(usuarioAdmin);
