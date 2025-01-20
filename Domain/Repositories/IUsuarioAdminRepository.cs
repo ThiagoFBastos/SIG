@@ -9,5 +9,6 @@ namespace Domain.Repositories
         void DeleteUsuarioAdmin(UsuarioAdmin usuarioAdmin);
         Task<UsuarioAdmin?> GetUsuarioAdminByIdAsync(Guid id);
         Task<UsuarioAdmin?> GetUsuarioAdminByEmailAsync(string email);
+        Task<List<UsuarioAdmin>> GetAllUsuarioAdmin();
     }
 }

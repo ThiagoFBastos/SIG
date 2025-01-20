@@ -68,6 +68,7 @@ namespace API.Extensions
             services.AddAutoMapper(typeof(TurmaProfile));
             services.AddAutoMapper(typeof(AlunoTurmaProfile));
             services.AddAutoMapper(typeof(EnderecoProfile));
+            services.AddAutoMapper(typeof(UsuarioAdminProfile));
         }
 
         public static void ConfigureServices(this IServiceCollection services)
@@ -79,6 +80,7 @@ namespace API.Extensions
             services.AddScoped<IProfessorService, ProfessorService>();
             services.AddScoped<ITurmaService, TurmaService>();
             services.AddScoped<ITokensService, TokensService>();
+            services.AddScoped<IUsuarioAdminService, UsuarioAdminService>();
         }
 
         public static void ConfigureValidators(this IServiceCollection services)

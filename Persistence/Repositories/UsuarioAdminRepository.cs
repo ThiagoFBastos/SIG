@@ -30,5 +30,9 @@ namespace Persistence.Repositories
                => FindByCondition(ua => ua.Email == email)
                 .FirstOrDefaultAsync();
 
+        public Task<List<UsuarioAdmin>> GetAllUsuarioAdmin()
+                => FindAll()
+                    .ToListAsync();
+
     }
 }
