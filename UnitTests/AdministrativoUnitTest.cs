@@ -28,16 +28,10 @@ namespace UnitTests
     public class AdministrativoUnitTest
     {
         private readonly IMapper _mapper;
-        private readonly AdministrativoController _admnistrativoController;
         private readonly Mock<IRepositoryManager> _repositoryManager;
         private readonly IAdministrativoService _administrativoService;
         private readonly Mock<IEnderecoService> _enderecoService;
         private readonly ITestOutputHelper _output;
-
-        private class AdministrativoMatricula
-        {
-            public required Guid matricula { get; set; }
-        }
 
         public AdministrativoUnitTest(ITestOutputHelper output)
         {
@@ -55,8 +49,6 @@ namespace UnitTests
             _enderecoService = new Mock<IEnderecoService>();
 
             _administrativoService = new AdministrativoService(_repositoryManager.Object, logger, _mapper, _enderecoService.Object);
-
-            _admnistrativoController = new AdministrativoController(_administrativoService);
         }
  
         [Fact]
@@ -92,27 +84,23 @@ namespace UnitTests
                 Sexo = (int)Sexo.M
             };
 
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPeloCelularAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
+            Mock<IAdministrativoRepository> administrativoRepository = new Mock<IAdministrativoRepository>();
+
+            administrativoRepository.Setup(x => x.GetAdministrativoPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
+            administrativoRepository.Setup(x => x.GetAdministrativoPeloCelularAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
+            administrativoRepository.Setup(x => x.GetAdministrativoPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
+            administrativoRepository.Setup(x => x.GetAdministrativoPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
+            administrativoRepository.Setup(x => x.AddAdministrativo(It.IsAny<Administrativo>())).Verifiable();
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
             _enderecoService.Setup(x => x.CadastrarEndereco(It.IsAny<EnderecoForCreateDto>())).ReturnsAsync(Guid.NewGuid());
-            _repositoryManager.Setup(x => x.AdministrativoRepository.AddAdministrativo(It.IsAny<Administrativo>())).Verifiable();
             _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
 
-            var response = await _admnistrativoController.Add(administrativoForCreate);
+            Guid matricula = await _administrativoService.CadastrarAdmnistrativo(administrativoForCreate);
 
-            Assert.NotNull(response);
-            Assert.True(response is OkObjectResult);
-
-            var okResponse = response as OkObjectResult;
-
-            Assert.NotNull(okResponse);
-            Assert.NotNull(okResponse.Value);
-            Assert.True(okResponse.Value is GuidResponseDto);
-            Assert.Equal(okResponse.StatusCode, 200);
+            _repositoryManager.VerifyAll();
+            administrativoRepository.VerifyAll();
         }
-
+        
         [Fact]
         public async Task Test_Add_Administrativo_Must_Throw_BadRequestException_Due_CPF()
         {
@@ -147,12 +135,14 @@ namespace UnitTests
             };
 
             Administrativo administrativo = _mapper.Map<Administrativo>(administrativoForCreate);
+            Mock<IAdministrativoRepository> administrativoRepository = new Mock<IAdministrativoRepository>();
 
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync(administrativo);
+            administrativoRepository.Setup(x => x.GetAdministrativoPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync(administrativo);
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
 
             try
             {
-                var response = await _admnistrativoController.Add(administrativoForCreate);
+                _ = await _administrativoService.CadastrarAdmnistrativo(administrativoForCreate);
                 Assert.Fail();
             }
             catch(BadRequestException ex)
@@ -164,7 +154,7 @@ namespace UnitTests
                 Assert.Fail();
             }
         } 
-
+        
         [Fact]
         public async Task Test_Add_Administrativo_Must_Throw_BadRequestException_Due_RG()
         {
@@ -199,13 +189,15 @@ namespace UnitTests
             };
 
             Administrativo administrativo = _mapper.Map<Administrativo>(administrativoForCreate);
+            Mock<IAdministrativoRepository> administrativoRepository = new Mock<IAdministrativoRepository>();
 
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync(administrativo);
+            administrativoRepository.Setup(x => x.GetAdministrativoPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
+            administrativoRepository.Setup(x => x.GetAdministrativoPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync(administrativo);
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
 
             try
             {
-                var response = await _admnistrativoController.Add(administrativoForCreate);
+                _ = await _administrativoService.CadastrarAdmnistrativo(administrativoForCreate);
                 Assert.Fail();
             }
             catch(BadRequestException ex)
@@ -217,7 +209,7 @@ namespace UnitTests
                 Assert.Fail();
             }
         }
-
+        
         [Fact]
         public async Task Test_Add_Administrativo_Must_Throw_BadRequestException_Due_Email()
         {
@@ -252,14 +244,16 @@ namespace UnitTests
             };
 
             Administrativo administrativo = _mapper.Map<Administrativo>(administrativoForCreate);
+            Mock<IAdministrativoRepository> administrativoRepository = new Mock<IAdministrativoRepository>();
 
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync(administrativo);
+            administrativoRepository.Setup(x => x.GetAdministrativoPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
+            administrativoRepository.Setup(x => x.GetAdministrativoPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
+            administrativoRepository.Setup(x => x.GetAdministrativoPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync(administrativo);
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
 
             try
             {
-                var response = await _admnistrativoController.Add(administrativoForCreate);
+                _ = await _administrativoService.CadastrarAdmnistrativo(administrativoForCreate);
                 Assert.Fail();
             }
             catch(BadRequestException ex)
@@ -271,7 +265,7 @@ namespace UnitTests
                 Assert.Fail();
             }
         }
-
+        
         [Fact]
         public async Task Test_Add_Administrativo_Must_Throw_BadRequestException_Due_Celular()
         {
@@ -306,15 +300,17 @@ namespace UnitTests
             };
 
             Administrativo administrativo = _mapper.Map<Administrativo>(administrativoForCreate);
+            Mock<IAdministrativoRepository> administrativoRepository = new Mock<IAdministrativoRepository>();
 
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPeloCelularAsync(It.IsAny<string>(), null)).ReturnsAsync(administrativo);
+            administrativoRepository.Setup(x => x.GetAdministrativoPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
+            administrativoRepository.Setup(x => x.GetAdministrativoPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
+            administrativoRepository.Setup(x => x.GetAdministrativoPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
+            administrativoRepository.Setup(x => x.GetAdministrativoPeloCelularAsync(It.IsAny<string>(), null)).ReturnsAsync(administrativo);
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
 
             try
             {
-                var response = await _admnistrativoController.Add(administrativoForCreate);
+                _ = await _administrativoService.CadastrarAdmnistrativo(administrativoForCreate);
                 Assert.Fail();
             }
             catch(BadRequestException ex)
@@ -326,7 +322,7 @@ namespace UnitTests
                 Assert.Fail();
             }
         }
-
+        
         [Fact]
         public async Task Test_Update_Administrativo_Must_Work()
         {
@@ -362,28 +358,21 @@ namespace UnitTests
                 DataNascimento = new DateTime(1980, 12, 31),
                 Sexo = Sexo.M
             };
+            Mock<IAdministrativoRepository> administrativoRepository = new Mock<IAdministrativoRepository>();
 
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoAsync(It.IsAny<Guid>(), null)).ReturnsAsync(administrativo);
-            _repositoryManager.Setup(x => x.AdministrativoRepository.UpdateAdministrativo(It.IsAny<Administrativo>())).Verifiable();
+            administrativoRepository.Setup(x => x.GetAdministrativoAsync(It.IsAny<Guid>(), null)).ReturnsAsync(administrativo);
+            administrativoRepository.Setup(x => x.UpdateAdministrativo(It.IsAny<Administrativo>())).Verifiable();
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
             _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
 
-            var response = await _admnistrativoController.Update(Guid.NewGuid(), administrativoForUpdate);
+            AdministrativoDto admistrativoDto = await _administrativoService.AlterarAdministrativo(Guid.NewGuid(), administrativoForUpdate);
 
+            administrativoRepository.VerifyAll();
             _repositoryManager.VerifyAll();
-            Assert.NotNull(response);
-            Assert.True(response is OkObjectResult);
 
-            var okResponse = response as OkObjectResult;
-
-            Assert.NotNull(okResponse);
-            
-            var result = okResponse.Value as AdministrativoDto;
-
-            Assert.NotNull(result);
-            Assert.True(result.Match(administrativo));
-            Assert.Equal(okResponse.StatusCode, 200);
+            Assert.True(admistrativoDto.Match(administrativo));
         }
-
+        
         [Fact]
         public async Task Test_Update_Administrativo_Must_Throw_NotFoundException()
         {
@@ -421,13 +410,16 @@ namespace UnitTests
                 Matricula = Guid.NewGuid()
             };
 
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoAsync(It.IsAny<Guid>(), null)).ReturnsAsync((Administrativo?)null);
+            Mock<IAdministrativoRepository> administrativRepository = new Mock<IAdministrativoRepository>();
+
+            administrativRepository.Setup(x => x.GetAdministrativoAsync(It.IsAny<Guid>(), null)).ReturnsAsync((Administrativo?)null);
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativRepository.Object);
 
             Guid matricula = Guid.NewGuid();
 
             try
             {
-                var response = await _admnistrativoController.Update(matricula, administrativoForUpdate);
+                _ = await _administrativoService.AlterarAdministrativo(matricula, administrativoForUpdate);
                 Assert.Fail();
             }
             catch(NotFoundException ex)
@@ -439,7 +431,7 @@ namespace UnitTests
                 Assert.Fail();
             }
         }
-
+        
         [Fact]
         public async Task Test_Delete_Administrativo_Must_Work()
         {
@@ -464,32 +456,33 @@ namespace UnitTests
                 Matricula = Guid.NewGuid()
             };
 
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoAsync(It.IsAny<Guid>(), null)).ReturnsAsync(administrativo);
-            _repositoryManager.Setup(x => x.AdministrativoRepository.DeleteAdministrativo(It.IsAny<Administrativo>())).Verifiable();
+            Mock<IAdministrativoRepository> administrativoRepository = new Mock<IAdministrativoRepository>();
+
+            administrativoRepository.Setup(x => x.GetAdministrativoAsync(It.IsAny<Guid>(), null)).ReturnsAsync(administrativo);
+            administrativoRepository.Setup(x => x.DeleteAdministrativo(It.IsAny<Administrativo>())).Verifiable();
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
             _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
 
-            var response = await _admnistrativoController.Delete(administrativo.Matricula);
+            await _administrativoService.DeletarAdministrativo(administrativo.Matricula);
 
             _repositoryManager.VerifyAll();
-            Assert.NotNull(response);
-            Assert.True(response is NoContentResult);
-
-            var noContentResponse = response as NoContentResult;
-
-            Assert.NotNull(noContentResponse);
-            Assert.Equal(204, noContentResponse.StatusCode);
+            administrativoRepository.VerifyAll();
         }
-
+        
         [Fact]
         public async Task Test_Delete_Administrativo_Must_Throw_NotFoundException()
         {
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoAsync(It.IsAny<Guid>(), null)).ReturnsAsync((Administrativo?)null);
-            
+            Mock<IAdministrativoRepository> administrativoRepository = new Mock<IAdministrativoRepository>();
+
+
+            administrativoRepository.Setup(x => x.GetAdministrativoAsync(It.IsAny<Guid>(), null)).ReturnsAsync((Administrativo?)null);
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
+
             Guid matricula = Guid.NewGuid();
 
             try
             {
-                var response = await _admnistrativoController.Delete(matricula);
+                await _administrativoService.DeletarAdministrativo(matricula);
                 Assert.Fail();
             }
             catch(NotFoundException ex)
@@ -501,7 +494,7 @@ namespace UnitTests
                 Assert.Fail();
             }
         }
-
+        
         [Fact]
         public async Task Test_Get_Administrativo_Must_Work()
         {
@@ -526,34 +519,28 @@ namespace UnitTests
                 Matricula = Guid.NewGuid()
             };
 
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoAsync(It.IsAny<Guid>(), null)).ReturnsAsync(administrativo);
-           
-           var response = await _admnistrativoController.Get(administrativo.Matricula);
+           Mock<IAdministrativoRepository> administrativoRepository = new Mock<IAdministrativoRepository>();
 
-           Assert.NotNull(response);
-           Assert.True(response is OkObjectResult);
+           administrativoRepository.Setup(x => x.GetAdministrativoAsync(It.IsAny<Guid>(), null)).ReturnsAsync(administrativo);
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
 
-           var okResponse = response as OkObjectResult;
+           AdministrativoDto administrativoDto = await _administrativoService.ObterAdministrativoPorMatricula(administrativo.Matricula);
 
-           Assert.NotNull(okResponse);
-         
-           var result = okResponse.Value as AdministrativoDto;
-
-           Assert.NotNull(result);
-
-           Assert.True(result.Match(administrativo));
-           Assert.Equal(200, okResponse.StatusCode);
+           Assert.True(administrativoDto.Match(administrativo));
         }   
-
+        
         [Fact]
         public async Task Test_Get_Administrativo_Must_Throw_Exception()
         {
             Guid matricula = Guid.NewGuid();
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoAsync(It.IsAny<Guid>(), null)).ReturnsAsync((Administrativo?)null);
-           
+            Mock<IAdministrativoRepository> administrativoRepository = new Mock<IAdministrativoRepository>();
+
+            administrativoRepository.Setup(x => x.GetAdministrativoAsync(It.IsAny<Guid>(), null)).ReturnsAsync((Administrativo?)null);
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
+
            try
            {
-                var response = await _admnistrativoController.Get(matricula);
+                _ = await _administrativoService.ObterAdministrativoPorMatricula(matricula);
                 Assert.Fail();
            }
            catch(NotFoundException ex)
@@ -565,7 +552,7 @@ namespace UnitTests
                 Assert.Fail();
            }
         }
-
+        
         [Fact]
         public async Task Test_Get_Administrativo_By_CPF_Must_Work()
         {
@@ -590,34 +577,28 @@ namespace UnitTests
                 Matricula = Guid.NewGuid()
             };
 
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync(administrativo);
-           
-           var response = await _admnistrativoController.GetByCPF(administrativo.CPF);
+            Mock<IAdministrativoRepository> administrativoRepository = new Mock<IAdministrativoRepository>();
 
-           Assert.NotNull(response);
-           Assert.True(response is OkObjectResult);
+            administrativoRepository.Setup(x => x.GetAdministrativoPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync(administrativo);
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
 
-           var okResponse = response as OkObjectResult;
+           AdministrativoDto administrativoDto = await _administrativoService.ObterAdministrativoPorCPF(administrativo.CPF);
 
-           Assert.NotNull(okResponse);
-         
-           var result = okResponse.Value as AdministrativoDto;
-
-           Assert.NotNull(result);
-
-           Assert.True(result.Match(administrativo));
-           Assert.Equal(200, okResponse.StatusCode);
+           Assert.True(administrativoDto.Match(administrativo));
         }   
-
+        
         [Fact]
         public async Task Test_Get_Administrativo_By_CPF_MustThrow_Exception()
         {
             const string cpf = "15158114099";
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
-           
+            Mock<IAdministrativoRepository> administrativoRepository = new Mock<IAdministrativoRepository>();
+
+            administrativoRepository.Setup(x => x.GetAdministrativoPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
+
            try
            {
-                var response = await _admnistrativoController.GetByCPF(cpf);
+                _ = await _administrativoService.ObterAdministrativoPorCPF(cpf);
                 Assert.Fail();
            }
            catch(NotFoundException ex)
@@ -629,7 +610,7 @@ namespace UnitTests
                 Assert.Fail();
            }
         }
-
+        
         [Fact]
         public async Task Test_Get_Administrativo_By_RG_Must_Work()
         {
@@ -654,34 +635,28 @@ namespace UnitTests
                 Matricula = Guid.NewGuid()
             };
 
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync(administrativo);
-           
-           var response = await _admnistrativoController.GetByRG(administrativo.RG);
+            Mock<IAdministrativoRepository> administrativoRepository = new Mock<IAdministrativoRepository>();
 
-           Assert.NotNull(response);
-           Assert.True(response is OkObjectResult);
+            administrativoRepository.Setup(x => x.GetAdministrativoPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync(administrativo);
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
 
-           var okResponse = response as OkObjectResult;
+           AdministrativoDto administrativoDto = await _administrativoService.ObterAdministrativoPorRG(administrativo.RG);
 
-           Assert.NotNull(okResponse);
-         
-           var result = okResponse.Value as AdministrativoDto;
-
-           Assert.NotNull(result);
-
-           Assert.True(result.Match(administrativo));
-           Assert.Equal(200, okResponse.StatusCode);
+           Assert.True(administrativoDto.Match(administrativo));
         }   
-
+        
         [Fact]
         public async Task Test_Get_Administrativo_By_RG_MustThrow_Exception()
         {
             const string rg = "339404954";
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
-           
+            Mock<IAdministrativoRepository> administrativoRepository = new Mock<IAdministrativoRepository>();
+
+            administrativoRepository.Setup(x => x.GetAdministrativoPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
+
            try
            {
-                var response = await _admnistrativoController.GetByRG(rg);
+                _ = await _administrativoService.ObterAdministrativoPorRG(rg);
                 Assert.Fail();
            }
            catch(NotFoundException ex)
@@ -693,7 +668,7 @@ namespace UnitTests
                 Assert.Fail();
            }
         }
-
+        
         [Fact]
         public async Task Test_Get_Administrativo_By_Email_Must_Work()
         {
@@ -718,34 +693,29 @@ namespace UnitTests
                 Matricula = Guid.NewGuid()
             };
 
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync(administrativo);
-           
-           var response = await _admnistrativoController.GetByEmail(administrativo.Email);
+            Mock<IAdministrativoRepository> administrativoRepository = new Mock<IAdministrativoRepository>();
 
-           Assert.NotNull(response);
-           Assert.True(response is OkObjectResult);
+            administrativoRepository.Setup(x => x.GetAdministrativoPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync(administrativo);
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
 
-           var okResponse = response as OkObjectResult;
+           AdministrativoDto administrativoDto = await _administrativoService.ObterAdministrativoPeloEmail(administrativo.Email);
 
-           Assert.NotNull(okResponse);
-         
-           var result = okResponse.Value as AdministrativoDto;
-
-           Assert.NotNull(result);
-
-           Assert.True(result.Match(administrativo));
-           Assert.Equal(200, okResponse.StatusCode);
+           Assert.True(administrativoDto.Match(administrativo));
         }   
-
+        
         [Fact]
         public async Task Test_Get_Administrativo_By_Email_MustThrow_Exception()
         {
             const string email = "shizuoheiwajima@bol.com";
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
-           
+            Mock<IAdministrativoRepository> administrativoRepository = new Mock<IAdministrativoRepository>();
+
+
+            administrativoRepository.Setup(x => x.GetAdministrativoPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
+
            try
            {
-                var response = await _admnistrativoController.GetByEmail(email);
+                _ = await _administrativoService.ObterAdministrativoPeloEmail(email);
                 Assert.Fail();
            }
            catch(NotFoundException ex)
@@ -757,7 +727,7 @@ namespace UnitTests
                 Assert.Fail();
            }
         }
-
+        
         [Fact]
         public async Task Test_Get_Administrativo_By_Celular_Must_Work()
         {
@@ -781,35 +751,28 @@ namespace UnitTests
                 Sexo = Sexo.M,
                 Matricula = Guid.NewGuid()
             };
+            Mock<IAdministrativoRepository> administrativoRepository = new Mock<IAdministrativoRepository>();
 
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPeloCelularAsync(It.IsAny<string>(), null)).ReturnsAsync(administrativo);
-           
-           var response = await _admnistrativoController.GetByCelular(administrativo.Celular);
+            administrativoRepository.Setup(x => x.GetAdministrativoPeloCelularAsync(It.IsAny<string>(), null)).ReturnsAsync(administrativo);
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
 
-           Assert.NotNull(response);
-           Assert.True(response is OkObjectResult);
+            AdministrativoDto administrativoDto = await _administrativoService.ObterAdministrativoPeloCelular(administrativo.Celular);
 
-           var okResponse = response as OkObjectResult;
-
-           Assert.NotNull(okResponse);
-         
-           var result = okResponse.Value as AdministrativoDto;
-
-           Assert.NotNull(result);
-
-           Assert.True(result.Match(administrativo));
-           Assert.Equal(200, okResponse.StatusCode);
+           Assert.True(administrativoDto.Match(administrativo));
         }   
-
+        
         [Fact]
         public async Task Test_Get_Administrativo_By_Celular_MustThrow_Exception()
         {
             const string celular = "21987654321";
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativoPeloCelularAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
-           
-           try
-           {
-                var response = await _admnistrativoController.GetByCelular(celular);
+            Mock<IAdministrativoRepository> administrativoRepository = new Mock<IAdministrativoRepository>();
+
+            administrativoRepository.Setup(x => x.GetAdministrativoPeloCelularAsync(It.IsAny<string>(), null)).ReturnsAsync((Administrativo?)null);
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
+
+            try
+            {
+                _ = await _administrativoService.ObterAdministrativoPeloCelular(celular);
                 Assert.Fail();
            }
            catch(NotFoundException ex)
@@ -821,7 +784,7 @@ namespace UnitTests
                 Assert.Fail();
            }
         }
-
+        
         [Fact]
         public async Task Test_Filter_Administrativos_Must_Work()
         {
@@ -888,28 +851,17 @@ namespace UnitTests
                 }
             };
 
-            _repositoryManager.Setup(x => x.AdministrativoRepository.GetAdministrativosAsync(It.IsAny<GetAdministrativosOptions>())).ReturnsAsync(administrativos);
+            Mock<IAdministrativoRepository> administrativoRepository = new Mock<IAdministrativoRepository>();
 
-            var response = await _admnistrativoController.Filter(new GetAdministrativosOptions());
+            administrativoRepository.Setup(x => x.GetAdministrativosAsync(It.IsAny<GetAdministrativosOptions>())).ReturnsAsync(administrativos);
+            _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
 
-            Assert.NotNull(response);
-            Assert.True(response is OkObjectResult);
+            Pagination<AdministrativoDto> administrativoDto = await _administrativoService.ObterAdministrativos(new GetAdministrativosOptions());
 
-            var okResponse = response as OkObjectResult;
+            Assert.Equal(administrativos.Count, administrativoDto.Items.Count);
 
-            Assert.NotNull(okResponse);
-
-            var result = okResponse.Value as Pagination<AdministrativoDto>;
-
-            Assert.NotNull(result);
-
-            Assert.Equal(administrativos.Count, result.Items.Count);
-
-            for(int i = 0; i < administrativos.Count; ++i)
-                Assert.True(result.Items[i].Match(administrativos[i]));
-
-            Assert.Equal(0, result.CurrentPage);
-            Assert.Equal(200, okResponse.StatusCode);
+            for (int i = 0; i < administrativos.Count; ++i)
+                Assert.True(administrativoDto.Items[i].Match(administrativos[i]));
         }
     }
 } 
