@@ -19,9 +19,8 @@ namespace UnitTests;
 public class EnderecoUnitTest
 {
     private readonly IMapper _mapper;
-    private readonly EnderecoController _enderecoController;
+    private readonly EnderecoService _enderecoService;
     private readonly Mock<IRepositoryManager> _repositoryManager;
-    private readonly IEnderecoService _enderecoService;
     private readonly ITestOutputHelper _output;
     public EnderecoUnitTest(ITestOutputHelper output)
     {
@@ -37,18 +36,6 @@ public class EnderecoUnitTest
         var logger = factory.CreateLogger<EnderecoService>();
 
         _enderecoService = new EnderecoService(_repositoryManager.Object, logger, _mapper);
-
-        _enderecoController = new EnderecoController(_enderecoService);
-    }
-
-    private bool CompareEqualEnderecos(EnderecoForUpdateDto enderecoForUpdate, Endereco endereco)
-    {
-        return enderecoForUpdate.Casa == endereco.Casa
-        && enderecoForUpdate.CEP == endereco.CEP
-        && enderecoForUpdate.Cidade == endereco.Cidade
-        && enderecoForUpdate.Complemento == endereco.Complemento
-        && enderecoForUpdate.Estado == (int)endereco.Estado
-        && enderecoForUpdate.Rua == endereco.Rua;   
     }
 
     [Fact]
@@ -66,32 +53,23 @@ public class EnderecoUnitTest
         Endereco endereco = _mapper.Map<Endereco>(enderecoForUpdate);
 
         Guid id = Guid.NewGuid();
+        Mock<IEnderecoRepository> enderecoRepository = new Mock<IEnderecoRepository>();
 
         endereco.Id = id;
 
-        _repositoryManager.Setup(x => x.EnderecoRepository.GetEnderecoAsync(It.IsAny<Guid>())).ReturnsAsync(endereco);
-        _repositoryManager.Setup(x => x.EnderecoRepository.UpdateEndereco(It.IsAny<Endereco>())).Verifiable();
+        enderecoRepository.Setup(x => x.GetEnderecoAsync(It.IsAny<Guid>())).ReturnsAsync(endereco);
+        enderecoRepository.Setup(x => x.UpdateEndereco(It.IsAny<Endereco>())).Verifiable();
+        _repositoryManager.SetupGet(x => x.EnderecoRepository).Returns(enderecoRepository.Object);
         _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
 
-        var response = await _enderecoController.Update(id, enderecoForUpdate);
+        EnderecoDto enderecoDto = await _enderecoService.AtualizarEndereco(id, enderecoForUpdate);
 
         _repositoryManager.VerifyAll();
-        Assert.NotNull(response);
-        Assert.True(response is OkObjectResult);
+        enderecoRepository.VerifyAll();
 
-        var okResponse = response as OkObjectResult;
-
-        Assert.NotNull(okResponse);
-        
-        var result = okResponse.Value as EnderecoDto;
-
-        Assert.NotNull(result);
-
-        Assert.True(CompareEqualEnderecos(enderecoForUpdate, endereco));
-        Assert.True(result.Match(endereco));
-        Assert.Equal(okResponse.StatusCode, 200);
+        Assert.True(enderecoDto.Match(endereco));
     }
-
+    
     [Fact]
     public async Task Test_Endereco_Update_Must_Throw_NotFoundException()
     {
@@ -105,12 +83,14 @@ public class EnderecoUnitTest
         };
 
         Guid id = Guid.NewGuid();
+        Mock<IEnderecoRepository> enderecoRepository = new Mock<IEnderecoRepository>();
 
-        _repositoryManager.Setup(x => x.EnderecoRepository.GetEnderecoAsync(It.IsAny<Guid>())).ReturnsAsync((Endereco?)null);
-        
+        enderecoRepository.Setup(x => x.GetEnderecoAsync(It.IsAny<Guid>())).ReturnsAsync((Endereco?)null);
+        _repositoryManager.SetupGet(x => x.EnderecoRepository).Returns(enderecoRepository.Object);
+
         try
         {
-            var response = await _enderecoController.Update(id, enderecoForUpdate);
+            _ = await _enderecoService.AtualizarEndereco(id, enderecoForUpdate);
             _repositoryManager.VerifyAll();
             Assert.Fail();
         }
@@ -123,7 +103,7 @@ public class EnderecoUnitTest
             Assert.Fail();
         }
     }
-
+    
     [Fact]
     public async Task Test_Endereco_Get_Must_Work()
     {
@@ -138,26 +118,16 @@ public class EnderecoUnitTest
             Casa = 86,
             CEP = "20230010" 
         };
+        Mock<IEnderecoRepository> enderecoRepository = new Mock<IEnderecoRepository>();
 
-        _repositoryManager.Setup(x => x.EnderecoRepository.GetEnderecoAsync(It.IsAny<Guid>())).ReturnsAsync(endereco);
+        enderecoRepository.Setup(x => x.GetEnderecoAsync(It.IsAny<Guid>())).ReturnsAsync(endereco);
+        _repositoryManager.SetupGet(x => x.EnderecoRepository).Returns(enderecoRepository.Object);
 
-        var response = await _enderecoController.Get(id);
-
-        Assert.NotNull(response);
-        Assert.True(response is OkObjectResult);
-
-        var okResponse = response as OkObjectResult;
-
-        Assert.NotNull(okResponse);
-
-        var enderecoDto = okResponse.Value as EnderecoDto;
-
-        Assert.NotNull(enderecoDto);
+        EnderecoDto enderecoDto = await _enderecoService.ObterEnderecoPorId(id);
 
         Assert.True(enderecoDto.Match(endereco));
-        Assert.Equal(okResponse.StatusCode, 200);
     }
-
+    
     [Fact]
     public async Task Test_Endereco_Get_Must_Throw_NotFoundException()
     {
@@ -172,17 +142,95 @@ public class EnderecoUnitTest
             Casa = 86,
             CEP = "20230010"
         };
+        Mock<IEnderecoRepository> enderecoRepository = new Mock<IEnderecoRepository>();
 
-        _repositoryManager.Setup(x => x.EnderecoRepository.GetEnderecoAsync(It.IsAny<Guid>())).ReturnsAsync((Endereco?)null);
+        enderecoRepository.Setup(x => x.GetEnderecoAsync(It.IsAny<Guid>())).ReturnsAsync((Endereco?)null);
+        _repositoryManager.SetupGet(x => x.EnderecoRepository).Returns(enderecoRepository.Object);
 
         try
         {
-            var response = await _enderecoController.Get(id);
+            _ = await _enderecoService.ObterEnderecoPorId(id);
             Assert.Fail();
         }
         catch(NotFoundException ex)
         {
             Assert.Equal($"O endereço com id: {id} não foi encontrado", ex.Message);
+        }
+        catch
+        {
+            Assert.Fail();
+        }
+    }
+
+    [Fact]
+    public async Task Test_Add_Endereco_Must_Work()
+    {
+        EnderecoForCreateDto enderecoForCreate = new EnderecoForCreateDto
+        {
+            Cidade = "Rio de Janeiro",
+            Estado = (int)Estado.RJ,
+            Rua = "Rua Sete de Setembro",
+            CEP = "21100412",
+            Casa = 10,
+            Complemento = "Fundos casa 3"
+        };
+
+        Mock<IEnderecoRepository> enderecoRepository = new Mock<IEnderecoRepository>();
+
+        enderecoRepository.Setup(x => x.AddEndereco(It.IsAny<Endereco>())).Verifiable();
+        _repositoryManager.SetupGet(x => x.EnderecoRepository).Returns(enderecoRepository.Object);
+        _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
+
+        Guid codigo = await _enderecoService.CadastrarEndereco(enderecoForCreate);
+
+        enderecoRepository.VerifyAll();
+        _repositoryManager.VerifyAll();
+    }
+
+    [Fact]
+    public async Task Test_Delete_Endereco_Must_Work()
+    {
+        Endereco endereco = new Endereco
+        {
+            Id = Guid.NewGuid(),
+            Cidade = "Rio de Janeiro",
+            Estado = Estado.RJ,
+            Rua = "Rua Sete de Setembro",
+            CEP = "21100412",
+            Casa = 10,
+            Complemento = "Fundos casa 3"
+        };
+
+        Mock<IEnderecoRepository> enderecoRepository = new Mock<IEnderecoRepository>();
+
+        enderecoRepository.Setup(y => y.GetEnderecoAsync(It.IsAny<Guid>())).ReturnsAsync(endereco);
+        enderecoRepository.Setup(y => y.DeleteEndereco(It.IsAny<Endereco>())).Verifiable();
+        _repositoryManager.SetupGet(y => y.EnderecoRepository).Returns(enderecoRepository.Object);
+        _repositoryManager.Setup(y => y.SaveAsync()).Verifiable();
+
+        await _enderecoService.DeletarEndereco(endereco.Id);
+
+        enderecoRepository.VerifyAll();
+        _repositoryManager.VerifyAll();
+    }
+
+    [Fact]
+    public async Task Test_Delete_Endereco_Shouldnt_Work_Endereco_Not_Exists()
+    {
+        Guid enderecoId = Guid.NewGuid();
+        Mock<IEnderecoRepository> enderecoRepository = new Mock<IEnderecoRepository>();
+
+        enderecoRepository.Setup(y => y.GetEnderecoAsync(It.IsAny<Guid>())).ReturnsAsync((Endereco?)null);
+        _repositoryManager.SetupGet(y => y.EnderecoRepository).Returns(enderecoRepository.Object);
+
+        try
+        {
+            await _enderecoService.DeletarEndereco(enderecoId);
+            Assert.Fail();
+        }
+        catch(NotFoundException ex)
+        {
+            Assert.Equal($"O endereço com id: {enderecoId} não foi encontrado", ex.Message);
         }
         catch
         {
