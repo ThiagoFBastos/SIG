@@ -25,9 +25,8 @@ namespace UnitTests
     public class ProfessorUnitTest
     {
         private readonly IMapper _mapper;
-        private readonly ProfessorController _professorController;
+        private readonly ProfessorService _professorService;
         private readonly Mock<IRepositoryManager> _repositoryManager;
-        private readonly IProfessorService _professorService;
         private readonly Mock<IEnderecoService> _enderecoService;
         private readonly ITestOutputHelper _output; 
 
@@ -46,8 +45,6 @@ namespace UnitTests
             _enderecoService = new Mock<IEnderecoService>();
 
             _professorService = new ProfessorService(_repositoryManager.Object, logger, _mapper, _enderecoService.Object);
-
-            _professorController = new ProfessorController(_professorService);
         }
 
         [Fact]
@@ -83,27 +80,23 @@ namespace UnitTests
                 Sexo = (int)Sexo.M
             };
 
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPeloCelularAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
+
+            professorRepository.Setup(x => x.GetProfessorPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
+            professorRepository.Setup(x => x.GetProfessorPeloCelularAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
+            professorRepository.Setup(x => x.GetProfessorPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
+            professorRepository.Setup(x => x.GetProfessorPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
+            professorRepository.Setup(x => x.AddProfessor(It.IsAny<Professor>())).Verifiable();
+            _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
             _enderecoService.Setup(x => x.CadastrarEndereco(It.IsAny<EnderecoForCreateDto>())).ReturnsAsync(Guid.NewGuid());
-            _repositoryManager.Setup(x => x.ProfessorRepository.AddProfessor(It.IsAny<Professor>())).Verifiable();
             _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
 
-            var response = await _professorController.Add(professor);
+            Guid matricula = await _professorService.CadastrarProfessor(professor);
 
-            Assert.NotNull(response);
-            Assert.True(response is OkObjectResult);
-
-            var okResponse = response as OkObjectResult;
-
-            Assert.NotNull(okResponse);
-            Assert.NotNull(okResponse.Value);
-            Assert.True(okResponse.Value is GuidResponseDto);
-            Assert.Equal(okResponse.StatusCode, 200);
+            professorRepository.VerifyAll();
+            _repositoryManager.VerifyAll();
         }
-
+        
         [Fact]
         public async Task Test_Add_Professor_Throw_Bad_Request_Due_CPF()
         {
@@ -138,12 +131,14 @@ namespace UnitTests
             };
 
             Professor professor = _mapper.Map<Professor>(professorForCreate);
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
 
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync(professor);
+            professorRepository.Setup(x => x.GetProfessorPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync(professor);
+            _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
 
             try
             {
-                var response = await _professorController.Add(professorForCreate);
+                _ = await _professorService.CadastrarProfessor(professorForCreate);
                 Assert.Fail();
             }
             catch(BadRequestException ex)
@@ -155,7 +150,7 @@ namespace UnitTests
                 Assert.Fail();
             }
         }
-
+        
         [Fact]
         public async Task Test_Add_Professor_Throw_Bad_Request_Due_RG()
         {
@@ -190,13 +185,16 @@ namespace UnitTests
             };
 
             Professor professor = _mapper.Map<Professor>(professorForCreate);
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
 
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync(professor);
+
+            professorRepository.Setup(x => x.GetProfessorPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
+            professorRepository.Setup(x => x.GetProfessorPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync(professor);
+            _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
 
             try
             {
-                var response = await _professorController.Add(professorForCreate);
+                _ = await _professorService.CadastrarProfessor(professorForCreate);
                 Assert.Fail();
             }
             catch(BadRequestException ex)
@@ -208,7 +206,7 @@ namespace UnitTests
                 Assert.Fail();
             }
         }
-
+        
         [Fact]
         public async Task Test_Add_Professor_Throw_Bad_Request_Due_Email()
         {
@@ -243,14 +241,16 @@ namespace UnitTests
             };
 
             Professor professor = _mapper.Map<Professor>(professorForCreate);
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
 
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync(professor);
+            professorRepository.Setup(x => x.GetProfessorPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
+            professorRepository.Setup(x => x.GetProfessorPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
+            professorRepository.Setup(x => x.GetProfessorPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync(professor);
+            _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
 
             try
             {
-                var response = await _professorController.Add(professorForCreate);
+                _ = await _professorService.CadastrarProfessor(professorForCreate);
                 Assert.Fail();
             }
             catch(BadRequestException ex)
@@ -297,15 +297,17 @@ namespace UnitTests
             };
 
             Professor professor = _mapper.Map<Professor>(professorForCreate);
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
 
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPeloCelularAsync(It.IsAny<string>(), null)).ReturnsAsync(professor);
+            professorRepository.Setup(x => x.GetProfessorPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
+            professorRepository.Setup(x => x.GetProfessorPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
+            professorRepository.Setup(x => x.GetProfessorPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
+            professorRepository.Setup(x => x.GetProfessorPeloCelularAsync(It.IsAny<string>(), null)).ReturnsAsync(professor);
+            _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
 
             try
             {
-                var response = await _professorController.Add(professorForCreate);
+                _ = await _professorService.CadastrarProfessor(professorForCreate);
                 Assert.Fail();
             }
             catch(BadRequestException ex)
@@ -317,7 +319,7 @@ namespace UnitTests
                 Assert.Fail();
             }
         }
-
+        
         [Fact]
         public async Task Test_Update_Professor_Must_Work()
         {
@@ -353,28 +355,21 @@ namespace UnitTests
                 DataNascimento = new DateTime(1980, 12, 31),
                 Sexo = Sexo.M
             };
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
 
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorAsync(It.IsAny<Guid>(), null)).ReturnsAsync(professor);
-            _repositoryManager.Setup(x => x.ProfessorRepository.UpdateProfessor(It.IsAny<Professor>())).Verifiable();
+            professorRepository.Setup(x => x.GetProfessorAsync(It.IsAny<Guid>(), null)).ReturnsAsync(professor);
+            professorRepository.Setup(x => x.UpdateProfessor(It.IsAny<Professor>())).Verifiable();
+            _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
             _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
 
-            var response = await _professorController.Update(Guid.NewGuid(), professorForUpdate);
+            ProfessorDto professorDto = await _professorService.AlterarProfessor(Guid.NewGuid(), professorForUpdate);
 
+            professorRepository.VerifyAll();
             _repositoryManager.VerifyAll();
-            Assert.NotNull(response);
-            Assert.True(response is OkObjectResult);
 
-            var okResponse = response as OkObjectResult;
-
-            Assert.NotNull(okResponse);
-            
-            var result = okResponse.Value as ProfessorDto;
-
-            Assert.NotNull(result);
-            Assert.True(result.Match(professor));
-            Assert.Equal(okResponse.StatusCode, 200);
+            Assert.True(professorDto.Match(professor));
         }
-
+        
         [Fact]
         public async Task Test_Update_Professor_Throw_NotFoundException()
         {
@@ -412,13 +407,15 @@ namespace UnitTests
                 Matricula = Guid.NewGuid()
             };
 
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorAsync(It.IsAny<Guid>(), null)).ReturnsAsync((Professor?)null);
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
+            professorRepository.Setup(x => x.GetProfessorAsync(It.IsAny<Guid>(), null)).ReturnsAsync((Professor?)null);
+            _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
 
             Guid matricula = Guid.NewGuid();
 
             try
             {
-                var response = await _professorController.Update(matricula, professorForUpdate);
+                _ = await _professorService.AlterarProfessor(matricula, professorForUpdate);
                 Assert.Fail();
             }
             catch(NotFoundException ex)
@@ -430,7 +427,7 @@ namespace UnitTests
                 Assert.Fail();
             }
         }
-
+        
         [Fact]
         public async Task Test_Delete_Professor_Must_Work()
         {
@@ -454,33 +451,32 @@ namespace UnitTests
                 Sexo = Sexo.M,
                 Matricula = Guid.NewGuid()
             };
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
 
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorAsync(It.IsAny<Guid>(), null)).ReturnsAsync(professor);
-            _repositoryManager.Setup(x => x.ProfessorRepository.DeleteProfessor(It.IsAny<Professor>())).Verifiable();
+            professorRepository.Setup(x => x.GetProfessorAsync(It.IsAny<Guid>(), null)).ReturnsAsync(professor);
+            professorRepository.Setup(x => x.DeleteProfessor(It.IsAny<Professor>())).Verifiable();
+            _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
             _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
 
-            var response = await _professorController.Delete(professor.Matricula);
+            await _professorService.DeletarProfessor(professor.Matricula);
 
+            professorRepository.VerifyAll();
             _repositoryManager.VerifyAll();
-            Assert.NotNull(response);
-            Assert.True(response is NoContentResult);
-
-            var noContentResponse = response as NoContentResult;
-
-            Assert.NotNull(noContentResponse);
-            Assert.Equal(204, noContentResponse.StatusCode);
         }
-
+        
         [Fact]
         public async Task Test_Delete_Professor_Throw_NotFoundException()
         {
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorAsync(It.IsAny<Guid>(), null)).ReturnsAsync((Professor?)null);
-            
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
+
+            professorRepository.Setup(x => x.GetProfessorAsync(It.IsAny<Guid>(), null)).ReturnsAsync((Professor?)null);
+            _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
+
             Guid matricula = Guid.NewGuid();
 
             try
             {
-                var response = await _professorController.Delete(matricula);
+                await _professorService.DeletarProfessor(matricula);
                 Assert.Fail();
             }
             catch(NotFoundException ex)
@@ -492,7 +488,7 @@ namespace UnitTests
                 Assert.Fail();
             }
         }
-
+        
         [Fact]
         public async Task Test_Get_Professor_Must_Work()
         { 
@@ -517,34 +513,28 @@ namespace UnitTests
                 Matricula = Guid.NewGuid()
             };
 
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorAsync(It.IsAny<Guid>(), null)).ReturnsAsync(professor);
-           
-           var response = await _professorController.Get(professor.Matricula);
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
 
-           Assert.NotNull(response);
-           Assert.True(response is OkObjectResult);
+            professorRepository.Setup(x => x.GetProfessorAsync(It.IsAny<Guid>(), null)).ReturnsAsync(professor);
+            _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
 
-           var okResponse = response as OkObjectResult;
+           ProfessorDto professorDto = await _professorService.ObterProfessorPorMatricula(professor.Matricula);
 
-           Assert.NotNull(okResponse);
-         
-           var result = okResponse.Value as ProfessorDto;
-
-           Assert.NotNull(result);
-
-           Assert.True(result.Match(professor));
-           Assert.Equal(200, okResponse.StatusCode);
+            Assert.True(professorDto.Match(professor));
         }
-
+        
         [Fact]
         public async Task Test_Get_Professor_Throw_NotFoundException()
         {
             Guid matricula = Guid.NewGuid();
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorAsync(It.IsAny<Guid>(), null)).ReturnsAsync((Professor?)null);
-           
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
+
+            professorRepository.Setup(x => x.GetProfessorAsync(It.IsAny<Guid>(), null)).ReturnsAsync((Professor?)null);
+            _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
+
            try
            {
-                var response = await _professorController.Get(matricula);
+                _ = await _professorService.ObterProfessorPorMatricula(matricula);
                 Assert.Fail();
            }
            catch(NotFoundException ex)
@@ -556,7 +546,7 @@ namespace UnitTests
                 Assert.Fail();
            }
         }
-
+        
         [Fact]
         public async Task Test_Get_By_CPF_Professor_Must_Work()
         {
@@ -580,35 +570,28 @@ namespace UnitTests
                 Sexo = Sexo.M,
                 Matricula = Guid.NewGuid()
             };
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
 
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync(professor);
-           
-           var response = await _professorController.GetByCPF(professor.CPF);
+            professorRepository.Setup(x => x.GetProfessorPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync(professor);
+            _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
 
-           Assert.NotNull(response);
-           Assert.True(response is OkObjectResult);
+            ProfessorDto professorDto = await _professorService.ObterProfessorPorCPF(professor.CPF);
 
-           var okResponse = response as OkObjectResult;
-
-           Assert.NotNull(okResponse);
-         
-           var result = okResponse.Value as ProfessorDto;
-
-           Assert.NotNull(result);
-
-           Assert.True(result.Match(professor));
-           Assert.Equal(200, okResponse.StatusCode);
+            Assert.True(professorDto.Match(professor));
         }
-
+        
         [Fact]
         public async Task Test_Get_By_CPF_Professor_Throw_NotFoundException()
         {
             const string cpf = "15158114099";
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
-           
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
+
+            professorRepository.Setup(x => x.GetProfessorPorCPFAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
+            _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
+
            try
            {
-                var response = await _professorController.GetByCPF(cpf);
+                _ = await _professorService.ObterProfessorPorCPF(cpf);
                 Assert.Fail();
            }
            catch(NotFoundException ex)
@@ -620,7 +603,7 @@ namespace UnitTests
                 Assert.Fail();
            }
         }
-
+        
         [Fact]
         public async Task Test_Get_By_RG_Professor_Must_Work()
         {
@@ -644,35 +627,29 @@ namespace UnitTests
                 Sexo = Sexo.M,
                 Matricula = Guid.NewGuid()
             };
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
 
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync(professor);
-           
-           var response = await _professorController.GetByRG(professor.RG);
+            professorRepository.Setup(x => x.GetProfessorPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync(professor);
+            _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
 
-           Assert.NotNull(response);
-           Assert.True(response is OkObjectResult);
+            ProfessorDto professorDto = await _professorService.ObterProfessorPorRG(professor.RG);
 
-           var okResponse = response as OkObjectResult;
+            Assert.True(professorDto.Match(professor));
 
-           Assert.NotNull(okResponse);
-         
-           var result = okResponse.Value as ProfessorDto;
-
-           Assert.NotNull(result);
-
-           Assert.True(result.Match(professor));
-           Assert.Equal(200, okResponse.StatusCode);
         }
-
+        
         [Fact]
         public async Task Test_Get_By_RG_Professor_Throw_NotFoundException()
         {
             const string rg = "339404954";
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
-           
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
+
+            professorRepository.Setup(x => x.GetProfessorPorRGAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
+            _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
+
            try
            {
-                var response = await _professorController.GetByRG(rg);
+                _ = await _professorService.ObterProfessorPorRG(rg);
                 Assert.Fail();
            }
            catch(NotFoundException ex)
@@ -684,7 +661,7 @@ namespace UnitTests
                 Assert.Fail();
            }
         }
-
+        
         [Fact]
         public async Task Test_Get_By_Email_Professor_Must_Work()
         {
@@ -708,35 +685,28 @@ namespace UnitTests
                 Sexo = Sexo.M,
                 Matricula = Guid.NewGuid()
             };
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
 
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync(professor);
-           
-           var response = await _professorController.GetByEmail(professor.Email);
+            professorRepository.Setup(x => x.GetProfessorPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync(professor);
+            _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
 
-           Assert.NotNull(response);
-           Assert.True(response is OkObjectResult);
+           ProfessorDto professorDto = await _professorService.ObterProfessorPeloEmail(professor.Email);
 
-           var okResponse = response as OkObjectResult;
-
-           Assert.NotNull(okResponse);
-         
-           var result = okResponse.Value as ProfessorDto;
-
-           Assert.NotNull(result);
-
-           Assert.True(result.Match(professor));
-           Assert.Equal(200, okResponse.StatusCode);
+            Assert.True(professorDto.Match(professor));
         }
-
+        
         [Fact]
         public async Task Test_Get_By_Email_Professor_Throw_NotFoundException()
         {
             const string email = "shizuoheiwajima@bol.com";
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
-           
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
+
+            professorRepository.Setup(x => x.GetProfessorPeloEmailAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
+            _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
+
            try
            {
-                var response = await _professorController.GetByEmail(email);
+                _ = await _professorService.ObterProfessorPeloEmail(email);
                 Assert.Fail();
            }
            catch(NotFoundException ex)
@@ -748,7 +718,7 @@ namespace UnitTests
                 Assert.Fail();
            }
         }
-
+        
         [Fact]
         public async Task Test_Get_By_Celular_Professor_Must_Work()
         {
@@ -772,35 +742,28 @@ namespace UnitTests
                 Sexo = Sexo.M,
                 Matricula = Guid.NewGuid()
             };
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
 
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPeloCelularAsync(It.IsAny<string>(), null)).ReturnsAsync(professor);
-           
-           var response = await _professorController.GetByCelular(professor.Celular);
+            professorRepository.Setup(x => x.GetProfessorPeloCelularAsync(It.IsAny<string>(), null)).ReturnsAsync(professor);
+            _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
 
-           Assert.NotNull(response);
-           Assert.True(response is OkObjectResult);
+           ProfessorDto professorDto = await _professorService.ObterProfessorPeloCelular(professor.Celular);
 
-           var okResponse = response as OkObjectResult;
-
-           Assert.NotNull(okResponse);
-         
-           var result = okResponse.Value as ProfessorDto;
-
-           Assert.NotNull(result);
-
-           Assert.True(result.Match(professor));
-           Assert.Equal(200, okResponse.StatusCode);
+            Assert.True(professorDto.Match(professor));
         }
-
+        
         [Fact]
         public async Task Test_Get_By_Celular_Professor_Throw_NotFoundException()
         {
             const string celular = "21987654321";
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessorPeloCelularAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
-           
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
+
+            professorRepository.Setup(x => x.GetProfessorPeloCelularAsync(It.IsAny<string>(), null)).ReturnsAsync((Professor?)null);
+           _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository?.Object);
+
            try
            {
-                var response = await _professorController.GetByCelular(celular);
+                _ = await _professorService.ObterProfessorPeloCelular(celular);
                 Assert.Fail();
            }
            catch(NotFoundException ex)
@@ -812,7 +775,7 @@ namespace UnitTests
                 Assert.Fail();
            }
         }
-
+        
         [Fact]
         public async Task Test_Filter_Professor_Must_Work()
         {
@@ -878,29 +841,17 @@ namespace UnitTests
                     Matricula = Guid.NewGuid()
                 }
             };
-             
-            _repositoryManager.Setup(x => x.ProfessorRepository.GetProfessoresAsync(It.IsAny<GetProfessoresOptions>())).ReturnsAsync(professores);
+            Mock<IProfessorRepository> professorRepository = new Mock<IProfessorRepository>();
 
-            var response = await _professorController.Filter(new GetProfessoresOptions());
+            professorRepository.Setup(x => x.GetProfessoresAsync(It.IsAny<GetProfessoresOptions>())).ReturnsAsync(professores);
+            _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
 
-            Assert.NotNull(response);
-            Assert.True(response is OkObjectResult);
+            Pagination<ProfessorDto> pagination = await _professorService.ObterProfessores(new GetProfessoresOptions());
 
-            var okResponse = response as OkObjectResult;
+            Assert.Equal(pagination.Items.Count, professores.Count);
 
-            Assert.NotNull(okResponse);
-
-            var result = okResponse.Value as Pagination<ProfessorDto>;
-
-            Assert.NotNull(result);
-
-            Assert.Equal(professores.Count, result.Items.Count);
-
-            for(int i = 0; i < professores.Count; ++i)
-                Assert.True(result.Items[i].Match(professores[i]));
-
-            Assert.Equal(0, result.CurrentPage);
-            Assert.Equal(200, okResponse.StatusCode);
+            for (int i = 0; i < professores.Count; ++i)
+                Assert.True(pagination.Items[i].Match(professores[i]));
         }
     }
 }
