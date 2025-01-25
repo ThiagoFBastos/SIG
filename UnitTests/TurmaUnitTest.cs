@@ -21,8 +21,7 @@ namespace UnitTests
 {
     public class TurmaUnitTest
     {
-         //_ 
-        private readonly TurmaController _turmaController;
+        private readonly TurmaService _turmaService;
         private readonly IMapper _mapper;
         private readonly Mock<IRepositoryManager> _repositoryManager;
         private readonly ITestOutputHelper _output;
@@ -40,9 +39,7 @@ namespace UnitTests
 
             _repositoryManager = new Mock<IRepositoryManager>();
 
-            TurmaService turmaService = new TurmaService(_repositoryManager.Object, logger, _mapper);
-
-            _turmaController = new TurmaController(turmaService);
+            _turmaService = new TurmaService(_repositoryManager.Object, logger, _mapper);
         }
 
         [Fact]
@@ -90,23 +87,12 @@ namespace UnitTests
             _repositoryManager.SetupGet(x => x.TurmaRepository).Returns(turmaRepository.Object);
             _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
 
-            var response = await _turmaController.Add(turma);
+            Guid codigo = await _turmaService.CadastrarTurma(turma);
 
-            _repositoryManager.VerifyAll();
             turmaRepository.VerifyAll();
-
-            Assert.NotNull(response);
-            Assert.IsType<OkObjectResult>(response);
-
-            var okResponse = response as OkObjectResult;
-
-            Assert.NotNull(okResponse);
-
-            Assert.True(okResponse.Value is GuidResponseDto);
-
-            Assert.Equal(200, okResponse.StatusCode);
+            _repositoryManager.VerifyAll();
         }
-
+        
         [Fact]
         public async Task Test_Create_Turma_Shouldnt_Work_Professor_NotExists()
         {
@@ -130,7 +116,7 @@ namespace UnitTests
 
             try
             {
-                var response = await _turmaController.Add(turma);
+                _ = await _turmaService.CadastrarTurma(turma);
                 Assert.Fail();
             }
             catch(BadRequestException ex)
@@ -142,7 +128,7 @@ namespace UnitTests
                 Assert.Fail();
             }
         }
-
+        
         [Fact]
         public async Task Test_Update_Turma_Must_Work()
         {
@@ -203,29 +189,14 @@ namespace UnitTests
 
             _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
 
-            var response = await _turmaController.Update(codigoTurma, turmaForUpdate);
+            TurmaDto turmaDto = await _turmaService.AlterarTurma(codigoTurma, turmaForUpdate);
 
             _repositoryManager.VerifyAll();
             turmaRepository.VerifyAll();
 
-            Assert.NotNull(response);
-            Assert.IsType<OkObjectResult>(response);
-
-            var okResponse = response as OkObjectResult;
-
-            Assert.NotNull(okResponse);
-
-            Assert.IsType<TurmaDto>(okResponse.Value);
-
-            TurmaDto? turmaResult = okResponse.Value as TurmaDto;
-
-            Assert.NotNull(turmaResult);
-
-            Assert.True(turmaResult.Match(turma));
-
-            Assert.Equal(200, okResponse.StatusCode);
+            Assert.True(turmaDto.Match(turma));
         }
-
+        
         [Fact]
         public async Task Test_Update_Turma_Shouldnt_Work_Professor_NotFound()
         {
@@ -248,7 +219,7 @@ namespace UnitTests
 
            try
            {
-                var response = await _turmaController.Update(codigoTurma, turmaForUpdate);
+                _ = await _turmaService.AlterarTurma(codigoTurma, turmaForUpdate);
                 Assert.Fail();
            }
            catch(BadRequestException ex)
@@ -260,7 +231,7 @@ namespace UnitTests
                 Assert.Fail();
            }
         }
-
+        
         [Fact]
         public async Task Test_Update_Turma_Shouldnt_Work_Turma_NotFound()
         {
@@ -308,7 +279,7 @@ namespace UnitTests
 
            try
            {
-                var response = await _turmaController.Update(codigoTurma, turmaForUpdate);
+                _ = await _turmaService.AlterarTurma(codigoTurma, turmaForUpdate);
                 Assert.Fail();
            }
            catch(NotFoundException ex)
@@ -320,7 +291,7 @@ namespace UnitTests
                 Assert.Fail();
            }
         }
-
+        
         [Fact]
         public async Task Test_Delete_Turma_Must_Work()
         {
@@ -344,20 +315,12 @@ namespace UnitTests
             _repositoryManager.SetupGet(x => x.TurmaRepository).Returns(turmaRepository.Object);
             _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
 
-            var response = await _turmaController.Delete(turma.Codigo);
+            await _turmaService.DeletarTurma(turma.Codigo);
 
             turmaRepository.VerifyAll();
             _repositoryManager.VerifyAll();
-
-            Assert.NotNull(response);
-            Assert.IsType<NoContentResult>(response);
-
-            var noContentResponse = response as NoContentResult;
-
-            Assert.NotNull(noContentResponse);
-            Assert.Equal(204, noContentResponse.StatusCode);
         }
-
+        
         [Fact]
         public async Task Test_Delete_Turma_Shouldnt_TurmaNotFound()
         {
@@ -371,7 +334,7 @@ namespace UnitTests
 
             try
             {
-                var response = await _turmaController.Delete(codigoTurma);
+                await _turmaService.DeletarTurma(codigoTurma);
                 Assert.Fail();
             }
             catch(NotFoundException ex)
@@ -383,7 +346,7 @@ namespace UnitTests
                 Assert.Fail();
             }
         }
-
+        
         [Fact]
         public async Task Test_Get_Turma_Must_Work()
         {
@@ -405,26 +368,11 @@ namespace UnitTests
 
             _repositoryManager.Setup(x => x.TurmaRepository).Returns(turmaRepository.Object);
 
-            var response = await _turmaController.Get(turma.Codigo);
-
-            Assert.NotNull(response);
-            Assert.IsType<OkObjectResult>(response);
-
-            var okResponse = response as OkObjectResult;
-
-            Assert.NotNull(okResponse);
-
-            Assert.IsType<TurmaDto>(okResponse.Value);
-
-            TurmaDto? turmaDto = okResponse.Value as TurmaDto;
-
-            Assert.NotNull(turmaDto);
+            TurmaDto turmaDto = await _turmaService.ObterTurmaPorCodigo(turma.Codigo);
 
             Assert.True(turmaDto.Match(turma));
-
-            Assert.Equal(200, okResponse.StatusCode);
         }
-
+        
         [Fact]
         public async Task Test_Filter_Turmas_Must_Work()
         {
@@ -459,22 +407,10 @@ namespace UnitTests
             turmaRepository.Setup(x => x.GetTurmasAsync(It.IsAny<GetTurmasOptions>())).ReturnsAsync(turmas);
             _repositoryManager.SetupGet(x => x.TurmaRepository).Returns(turmaRepository.Object);
 
-            var response = await _turmaController.Filter(new GetTurmasOptions() { });
+            Pagination<TurmaDto> pagination = await _turmaService.ObterTurmas(new GetTurmasOptions() { });
 
-            Assert.NotNull(response);
-            Assert.IsType<OkObjectResult>(response);
-
-            var okResponse = response as OkObjectResult;
-
-            Assert.NotNull(okResponse);
-            Assert.IsType<Pagination<TurmaDto>>(okResponse.Value);
-
-            var list = okResponse.Value as Pagination<TurmaDto>;
-
-            Assert.NotNull(list);
-
-            for(int i = 0; i < list.Items.Count; ++i)
-                Assert.True(list.Items[i].Match(turmas[i]));
+            for(int i = 0; i < pagination.Items.Count; ++i)
+                Assert.True(pagination.Items[i].Match(turmas[i]));
         }
     }
 }
