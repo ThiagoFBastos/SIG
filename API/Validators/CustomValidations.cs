@@ -37,5 +37,44 @@ namespace API.Validators
         public static bool CelularValido(string celular) => Regex.IsMatch(celular, @"^\d{2}9\d{8}$");
 
         public static bool RGValido(string rg) => Regex.IsMatch(rg, @"^\d{8,9}$");
+
+        public static bool PasswordValido(string password)
+        {
+            List<char> specialCharacters = new List<char>
+            {
+                '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/', ':',
+                ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~'
+            };
+
+            List<char> digits = new List<char>();
+
+            for(char c = '0'; c <= '9'; ++c)
+                digits.Add(c);
+            
+            List<char> lowercaseLetters = new List<char>();
+
+            for (char c = 'a'; c <= 'z'; c++)
+                lowercaseLetters.Add(c);
+
+            List<char> uppercaseLetters = new List<char>();
+
+            for (char c = 'A'; c <= 'Z'; c++)
+                uppercaseLetters.Add(c);
+
+            bool containsSpecialCharacter = false;
+            bool containsDigit = false;
+            bool containsLowerCaseLetter = false;
+            bool containsUpperCaseLetter = false;
+
+            foreach (char ch in password)
+            {
+                containsSpecialCharacter = containsSpecialCharacter || specialCharacters.Contains(ch);
+                containsDigit = containsDigit || digits.Contains(ch);
+                containsLowerCaseLetter = containsLowerCaseLetter || lowercaseLetters.Contains(ch);
+                containsUpperCaseLetter = containsUpperCaseLetter || uppercaseLetters.Contains(ch);
+            }
+
+            return containsSpecialCharacter && containsDigit && containsLowerCaseLetter && containsUpperCaseLetter;
+        }
     }
 }

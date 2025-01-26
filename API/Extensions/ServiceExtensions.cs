@@ -108,6 +108,7 @@ namespace API.Extensions
             services.AddValidatorsFromAssemblyContaining<GetAlunosOptionsValidator>();
             services.AddValidatorsFromAssemblyContaining<LoginUsuarioValidator>();
             services.AddValidatorsFromAssemblyContaining<UsuarioAdminForCreateValidator>();
+            services.AddValidatorsFromAssemblyContaining<ChangePassowrValidator>();
         }
         public static void ConfigureSwagger(this IServiceCollection services)
         {
