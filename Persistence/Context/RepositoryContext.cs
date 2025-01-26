@@ -17,8 +17,8 @@ namespace Persistence.Context
         public DbSet<Turma> Turmas { get; private set; }
         public DbSet<Endereco> Enderecos { get; private set; }
         public DbSet<AlunoTurma> AlunosTurmas { get; private set; }
-
         public DbSet<UsuarioAdmin> UsuarioAdmins { get; private set; }
+        public DbSet<UsuarioAdministrativo> UsuarioAdministrativos { get; private set; }
         public RepositoryContext(DbContextOptions<RepositoryContext> options) : base(options)
         {
 
@@ -127,7 +127,7 @@ namespace Persistence.Context
 
             modelBuilder.Entity<UsuarioAdmin>(a =>
             {
-                const string password = "15158114099";
+                const string password = "15158114099Aa$";
                 string salString;
                 PasswordHash hash = new PasswordHash();
 
@@ -136,7 +136,17 @@ namespace Persistence.Context
                 a.HasIndex(a => a.Email)
                     .IsUnique();
 
-                a.HasData(new UsuarioAdmin { Id = Guid.NewGuid(), Email = "agathadesouza@outlook.com", PasswordHash = passwordHash, SalString = salString });
+                a.HasData(new UsuarioAdmin { Id = Guid.NewGuid(), Email = "juliamagalhaes@outlook.com", PasswordHash = passwordHash, SalString = salString });
+            });
+
+            modelBuilder.Entity<UsuarioAdministrativo>(a =>
+            {
+                a.HasIndex(a => a.Email)
+                    .IsUnique();
+
+                a.HasOne(a => a.Administrativo)
+                    .WithMany()
+                    .HasForeignKey(a => a.AdministrativoMatricula);
             });
 
             base.OnModelCreating(modelBuilder);
