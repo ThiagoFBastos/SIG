@@ -84,6 +84,7 @@ namespace API.Extensions
             services.AddScoped<ITokensService, TokensService>();
             services.AddScoped<IUsuarioAdminService, UsuarioAdminService>();
             services.AddScoped<IPasswordHash, PasswordHash>();
+            services.AddScoped<IUsuarioAdministrativoService, UsuarioAdministrativoService>();
         }
 
         public static void ConfigureValidators(this IServiceCollection services)
