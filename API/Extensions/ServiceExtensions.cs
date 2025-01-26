@@ -15,6 +15,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Shared.Options;
+using static System.Net.Mime.MediaTypeNames;
+using System.Diagnostics.Metrics;
+using System.Reflection.Metadata;
 
 namespace API.Extensions
 {
@@ -36,9 +39,8 @@ namespace API.Extensions
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = "https://localhost:7208",
-                    ValidAudience = "https://localhost:7208",
+                    ValidAudience = config["JWT:Audience"], 
+                    ValidIssuer = config["JWT:Issuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:SecretKey"] ?? "ododod99e9933iirjjrhrhfd8f893u3hj"))
                  };
             });
@@ -121,6 +123,30 @@ namespace API.Extensions
                     Title = "SIG API",
                     Version = "v1",
                     Description = "API para um sistema gerenciador de uma escola"
+                });
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "JWT Authorization header using the Bearer scheme.\r\n\r\n Enter 'Bearer'[space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                          new OpenApiSecurityScheme
+                          {
+                              Reference = new OpenApiReference
+                              {
+                                  Type = ReferenceType.SecurityScheme,
+                                  Id = "Bearer"
+                              }
+                          },
+                         new string[] {}
+                    }
                 });
             });
         }

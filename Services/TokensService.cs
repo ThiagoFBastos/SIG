@@ -34,7 +34,9 @@ namespace Services
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = signCredentials
+                SigningCredentials = signCredentials,
+                Audience = _options.Audience,
+                Issuer = _options.Issuer
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();

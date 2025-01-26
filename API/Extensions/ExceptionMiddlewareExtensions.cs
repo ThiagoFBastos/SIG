@@ -26,6 +26,7 @@ namespace API.Extensions
                         {
                             NotFoundException => StatusCodes.Status404NotFound,
                             BadRequestException => StatusCodes.Status400BadRequest,
+                            UnauthorizedException => StatusCodes.Status401Unauthorized,
                             _ => StatusCodes.Status500InternalServerError
                         };
 
@@ -40,6 +41,7 @@ namespace API.Extensions
                         {
                             404 => "https://tools.ietf.org/html/rfc9110#section-15.5.5",
                             400 => "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+                            401 => "https://datatracker.ietf.org/doc/html/rfc9110#section-15.5.2",
                             _ => "https://tools.ietf.org/html/rfc9110#section-15.6.1"
                         };
 
