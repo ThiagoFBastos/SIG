@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using API.Controllers;
 using AutoMapper;
 using Domain.Repositories;
 using Moq;
@@ -23,9 +22,8 @@ namespace UnitTests
 {
     public class AlunoUnitTest
     {
-        //_
         private readonly IMapper _mapper;
-        private readonly AlunoController _alunoController;
+        private readonly AlunoService _alunoService;
         private readonly Mock<IRepositoryManager> _repositoryManager;
         private readonly Mock<IEnderecoService> _enderecoService;
         private readonly ITestOutputHelper _output;
@@ -45,9 +43,7 @@ namespace UnitTests
 
             _enderecoService = new Mock<IEnderecoService>();
 
-            var alunoService = new AlunoService(_repositoryManager.Object, logger, _mapper, _enderecoService.Object);
-
-            _alunoController = new AlunoController(alunoService);
+            _alunoService = new AlunoService(_repositoryManager.Object, logger, _mapper, _enderecoService.Object);
         }
  
         [Fact]
@@ -88,22 +84,12 @@ namespace UnitTests
                 Turno = (int)Turno.MANHA
             };
 
-            var response = await _alunoController.Add(aluno);
+            Guid matricula = await _alunoService.CadastrarAluno(aluno);
 
-            _repositoryManager.VerifyAll();
-            _enderecoService.VerifyAll();
             alunoRepository.VerifyAll();
-
-            Assert.NotNull(response);
-            Assert.IsType<OkObjectResult>(response);
-
-            var okResponse = response as OkObjectResult;
-
-            Assert.NotNull(okResponse);
-            Assert.True(okResponse.Value is GuidResponseDto);
-            Assert.Equal(200, okResponse.StatusCode);
+            _repositoryManager.VerifyAll();
         }
-
+        
         [Theory]
         [InlineData("CPF")]
         [InlineData("RG")]
@@ -160,19 +146,36 @@ namespace UnitTests
 
             try
             {
-                var response = await _alunoController.Add(alunoForCreate);
+                _ = await _alunoService.CadastrarAluno(alunoForCreate);
                 Assert.Fail();
             }
-            catch(BadRequestException)
+            catch(BadRequestException ex)
             {
-
+                switch (doc)
+                {
+                    case "CPF":
+                        Assert.Equal($"Já existe um aluno com cpf: {aluno.CPF}", ex.Message);
+                        break;
+                    case "RG":
+                        Assert.Equal($"Já existe um aluno com rg: {aluno.RG}", ex.Message);
+                        break;
+                    case "Email":
+                        Assert.Equal($"Já existe um aluno com email: {aluno.Email}", ex.Message);
+                        break;
+                    case "Celular":
+                        Assert.Equal($"Já existe um aluno com celular: {aluno.Celular}", ex.Message);
+                        break;
+                    default:
+                        Assert.Fail();
+                        break;
+                }
             }
             catch
             {
                 Assert.Fail();
             }
         }
-
+        
         [Fact]
         public async Task Test_Update_Aluno_Must_Work()
         {
@@ -210,27 +213,14 @@ namespace UnitTests
 
             Guid alunoMatricula = Guid.NewGuid();
 
-            var response = await _alunoController.Update(alunoMatricula, alunoForUpdate);
+            AlunoDto alunoDto = await _alunoService.AlterarAluno(alunoMatricula, alunoForUpdate);
 
             _repositoryManager.VerifyAll();
             alunoRepository.VerifyAll();
 
-            Assert.NotNull(response);
-            Assert.IsType<OkObjectResult>(response);
-
-            var okResponse = response as OkObjectResult;
- 
-            Assert.NotNull(okResponse);
-            Assert.Equal(200, okResponse.StatusCode);
-            Assert.IsType<AlunoDto>(okResponse.Value);
-
-            AlunoDto? alunoDto = okResponse.Value as AlunoDto;
-
-            Assert.NotNull(alunoDto);
-
             Assert.True(alunoDto.Match(aluno));
         }
-
+        
         [Fact]
         public async Task Test_Update_Aluno_Should_Work_Aluno_Already_Exist()
         {
@@ -268,7 +258,7 @@ namespace UnitTests
 
             try
             {
-                var response = await _alunoController.Update(alunoMatricula, alunoForUpdate);
+                _ = await _alunoService.AlterarAluno(alunoMatricula, alunoForUpdate);
                 Assert.Fail();
             }
             catch(NotFoundException ex)
@@ -280,7 +270,7 @@ namespace UnitTests
                 Assert.Fail();
             }
         }
-
+        
         [Fact]
         public async Task Test_Delete_Aluno_Must_Work()
         {
@@ -308,30 +298,24 @@ namespace UnitTests
             _repositoryManager.SetupGet(x => x.AlunoRepository).Returns(alunoRepository.Object);
             _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
 
-            var response = await _alunoController.Delete(matriculaAluno);
+             await _alunoService.DeletarAluno(matriculaAluno);
 
-            Assert.NotNull(response);
-            Assert.IsType<NoContentResult>(response);
-
-            var okResponse = response as NoContentResult;
-
-            Assert.NotNull(okResponse);
-
-            Assert.Equal(204, okResponse.StatusCode);
+            alunoRepository.VerifyAll();
+            _repositoryManager.VerifyAll();
         }
-
+        
         [Fact]
         public async Task Test_Delete_Aluno_Shouldnt_Work_Aluno_Dont_Exists()
         {
             Mock<IAlunoRepository> alunoRepository = new Mock<IAlunoRepository>();
-            Guid matriculaAluno = Guid.NewGuid();
+             Guid matriculaAluno = Guid.NewGuid();
 
             alunoRepository.Setup(x => x.GetAlunoAsync(It.IsAny<Guid>(), It.IsAny<GetAlunoOptions>())).ReturnsAsync((Aluno?)null);
             _repositoryManager.SetupGet(x => x.AlunoRepository).Returns(alunoRepository.Object);
 
             try
             {
-                var response = await _alunoController.Delete(matriculaAluno);
+                await _alunoService.DeletarAluno(matriculaAluno);
                 Assert.Fail();
             }
             catch(NotFoundException ex)
@@ -343,7 +327,7 @@ namespace UnitTests
                 Assert.Fail();
             }
         }
-
+        
         [Fact]
         public async Task Test_Get_Aluno_By_Matricula_Work()
         {
@@ -369,26 +353,11 @@ namespace UnitTests
             alunoRepository.Setup(x => x.GetAlunoAsync(It.IsAny<Guid>(), It.IsAny<GetAlunoOptions>())).ReturnsAsync(aluno);
             _repositoryManager.SetupGet(x => x.AlunoRepository).Returns(alunoRepository.Object);
 
-            var response = await _alunoController.Get(matriculaAluno);
-
-            Assert.NotNull(response);
-            Assert.IsType<OkObjectResult>(response);
-
-            var okResponse = response as OkObjectResult;
-
-            Assert.NotNull(okResponse);
-
-            Assert.IsType<AlunoDto>(okResponse.Value);
-
-            AlunoDto? alunoDto = okResponse.Value as AlunoDto;
-
-            Assert.NotNull(alunoDto);
-
-            Assert.Equal(200, okResponse.StatusCode);
+            AlunoDto alunoDto = await _alunoService.ObterAlunoPorMatricula(matriculaAluno);
 
             Assert.True(alunoDto.Match(aluno));
         }
-
+        
         [Fact]
         public async Task Test_Get_Aluno_By_Matricula_Shouldnt_Work_Aluno_NotFound()
         {
@@ -400,7 +369,7 @@ namespace UnitTests
 
             try
             {
-                var response = await _alunoController.Get(matriculaAluno);
+                _ = await _alunoService.ObterAlunoPorMatricula(matriculaAluno);
                 Assert.Fail();
             }
             catch(NotFoundException ex)
@@ -412,7 +381,7 @@ namespace UnitTests
                 Assert.Fail();
             }
         }
-
+        
         [Fact]
         public async Task Test_Get_Aluno_By_CPF_Must_Work()
         {
@@ -437,26 +406,11 @@ namespace UnitTests
             alunoRepository.Setup(x => x.GetAlunoPorCPFAsync(It.IsAny<string>(), It.IsAny<GetAlunoOptions>())).ReturnsAsync(aluno);
             _repositoryManager.SetupGet(x => x.AlunoRepository).Returns(alunoRepository.Object);
 
-            var response = await _alunoController.GetByCPF("12345678910");
-
-            Assert.NotNull(response);
-            Assert.IsType<OkObjectResult>(response);
-
-            var okResponse = response as OkObjectResult;
-
-            Assert.NotNull(okResponse);
-
-            Assert.IsType<AlunoDto>(okResponse.Value);
-
-            AlunoDto? alunoDto = okResponse.Value as AlunoDto;
-
-            Assert.NotNull(alunoDto);
-
-            Assert.Equal(200, okResponse.StatusCode);
+            AlunoDto alunoDto = await _alunoService.ObterAlunoPorCPF(aluno.CPF);
 
             Assert.True(alunoDto.Match(aluno));
         }
-
+        
         [Fact]
         public async Task Test_Get_Aluno_By_CPF_Shouldnt_Work_CPF_NotFound()
         {
@@ -468,7 +422,7 @@ namespace UnitTests
 
             try
             {
-                var response = await _alunoController.GetByCPF(cpf);
+                _ = await _alunoService.ObterAlunoPorCPF(cpf);
                 Assert.Fail();
             }
             catch(NotFoundException ex)
@@ -480,7 +434,7 @@ namespace UnitTests
                 Assert.Fail();
             }
         }
-
+        
         [Fact]
         public async Task Test_Get_Aluno_By_RG_Must_Work()
         {
@@ -504,27 +458,12 @@ namespace UnitTests
 
             alunoRepository.Setup(x => x.GetAlunoPorRGAsync(It.IsAny<string>(), It.IsAny<GetAlunoOptions>())).ReturnsAsync(aluno);
             _repositoryManager.SetupGet(x => x.AlunoRepository).Returns(alunoRepository.Object);
-
-            var response = await _alunoController.GetByRG("489784561");
-
-            Assert.NotNull(response);
-            Assert.IsType<OkObjectResult>(response);
-
-            var okResponse = response as OkObjectResult;
-
-            Assert.NotNull(okResponse);
-
-            Assert.IsType<AlunoDto>(okResponse.Value);
-
-            AlunoDto? alunoDto = okResponse.Value as AlunoDto;
-
-            Assert.NotNull(alunoDto);
-
-            Assert.Equal(200, okResponse.StatusCode);
+            
+            AlunoDto alunoDto  = await _alunoService.ObterAlunoPorRG(aluno.RG);
 
             Assert.True(alunoDto.Match(aluno));
         }
-
+        
         [Fact]
         public async Task Test_Get_Aluno_By_RG_Shouldnt_Work_RG_NotFound()
         {
@@ -536,7 +475,7 @@ namespace UnitTests
 
             try
             {
-                var response = await _alunoController.GetByRG(rg);
+                _ = await _alunoService.ObterAlunoPorRG(rg);
                 Assert.Fail();
             }
             catch(NotFoundException ex)
@@ -548,7 +487,7 @@ namespace UnitTests
                 Assert.Fail();
             }
         }
-
+        
         [Fact]
         public async Task Test_Get_Aluno_By_Email_Must_Work()
         {
@@ -573,26 +512,11 @@ namespace UnitTests
             alunoRepository.Setup(x => x.GetAlunoPeloEmailAsync(It.IsAny<string>(), It.IsAny<GetAlunoOptions>())).ReturnsAsync(aluno);
             _repositoryManager.SetupGet(x => x.AlunoRepository).Returns(alunoRepository.Object);
 
-            var response = await _alunoController.GetByEmail("fulanodetal@gmail.com");
-
-            Assert.NotNull(response);
-            Assert.IsType<OkObjectResult>(response);
-
-            var okResponse = response as OkObjectResult;
-
-            Assert.NotNull(okResponse);
-
-            Assert.IsType<AlunoDto>(okResponse.Value);
-
-            AlunoDto? alunoDto = okResponse.Value as AlunoDto;
-
-            Assert.NotNull(alunoDto);
-
-            Assert.Equal(200, okResponse.StatusCode);
+            AlunoDto alunoDto = await _alunoService.ObterAlunoPeloEmail(aluno.Email);
 
             Assert.True(alunoDto.Match(aluno));
         }
-
+        
         [Fact]
         public async Task Test_Get_Aluno_By_Email_Shouldnt_Work_Email_NotFound()
         {
@@ -604,7 +528,7 @@ namespace UnitTests
 
             try
             {
-                var response = await _alunoController.GetByEmail(email);
+                _ = await _alunoService.ObterAlunoPeloEmail(email);
                 Assert.Fail();
             }
             catch(NotFoundException ex)
@@ -641,26 +565,11 @@ namespace UnitTests
             alunoRepository.Setup(x => x.GetAlunoPeloCelularAsync(It.IsAny<string>(), It.IsAny<GetAlunoOptions>())).ReturnsAsync(aluno);
             _repositoryManager.SetupGet(x => x.AlunoRepository).Returns(alunoRepository.Object);
 
-            var response = await _alunoController.GetByCelular("21998765432");
-
-            Assert.NotNull(response);
-            Assert.IsType<OkObjectResult>(response);
-
-            var okResponse = response as OkObjectResult;
-
-            Assert.NotNull(okResponse);
-
-            Assert.IsType<AlunoDto>(okResponse.Value);
-
-            AlunoDto? alunoDto = okResponse.Value as AlunoDto;
-
-            Assert.NotNull(alunoDto);
-
-            Assert.Equal(200, okResponse.StatusCode);
+            AlunoDto alunoDto = await _alunoService.ObterAlunoPeloCelular(aluno.Celular);
 
             Assert.True(alunoDto.Match(aluno));
         }
-
+        
         [Fact]
         public async Task Test_Get_Aluno_By_Celular_Shouldnt_Work_Celular_NotFound()
         {
@@ -672,7 +581,7 @@ namespace UnitTests
 
             try
             {
-                var response = await _alunoController.GetByCelular(celular);
+                _ = await _alunoService.ObterAlunoPeloCelular(celular);
                 Assert.Fail();
             }
             catch(NotFoundException ex)
@@ -684,7 +593,7 @@ namespace UnitTests
                 Assert.Fail();
             }
         }
-
+        
         [Fact]
         public async Task Test_Get_All_Alunos_Must_Work()
         {
@@ -741,21 +650,7 @@ namespace UnitTests
             alunoRepository.Setup(x => x.GetAlunosAsync(It.IsAny<GetAlunosOptions>())).ReturnsAsync(alunos);
             _repositoryManager.SetupGet(x => x.AlunoRepository).Returns(alunoRepository.Object);
 
-            var response = await _alunoController.Filter(new GetAlunosOptions {});
-
-            Assert.NotNull(response);
-            Assert.IsType<OkObjectResult>(response);
-
-            var okResponse = response as OkObjectResult;
-
-            Assert.NotNull(okResponse);
-
-            Assert.IsType<Pagination<AlunoDto>>(okResponse.Value);
-
-            Pagination<AlunoDto>? pagination = okResponse.Value as Pagination<AlunoDto>;
-
-            Assert.NotNull(pagination);
-            Assert.Equal(200, okResponse.StatusCode);
+            Pagination<AlunoDto> pagination = await _alunoService.ObterAlunos(new GetAlunosOptions { });
 
             Assert.Equal(pagination.Items.Count, alunos.Count);
             
