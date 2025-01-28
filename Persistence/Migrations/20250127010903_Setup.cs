@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class SIGDatabaseInit : Migration
+    public partial class Setup : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -26,6 +26,20 @@ namespace Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_enderecos", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "usuarios_admins",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    SalString = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_usuarios_admins", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -126,6 +140,27 @@ namespace Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "usuarios_administrativos",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    AdministrativoMatricula = table.Column<Guid>(type: "uuid", nullable: false),
+                    Email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    SalString = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_usuarios_administrativos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_usuarios_administrativos_administrativos_AdministrativoMatr~",
+                        column: x => x.AdministrativoMatricula,
+                        principalTable: "administrativos",
+                        principalColumn: "Matricula",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "turmas",
                 columns: table => new
                 {
@@ -174,6 +209,11 @@ namespace Persistence.Migrations
                         principalColumn: "Codigo",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "usuarios_admins",
+                columns: new[] { "Id", "Email", "PasswordHash", "SalString" },
+                values: new object[] { new Guid("bc8862eb-5be7-4dfb-a1e4-b85c7072fb16"), "juliamagalhaes@outlook.com", "sMjTxzPJm/DGJB3yH2K0nWlLIRJJms6VQx+AqshSyNc=", "Ur0j4RP9p9ZZSh/uRx5PJw==" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_administrativos_Celular",
@@ -277,22 +317,45 @@ namespace Persistence.Migrations
                 name: "IX_turmas_ProfessorMatricula",
                 table: "turmas",
                 column: "ProfessorMatricula");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_usuarios_administrativos_AdministrativoMatricula",
+                table: "usuarios_administrativos",
+                column: "AdministrativoMatricula");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_usuarios_administrativos_Email",
+                table: "usuarios_administrativos",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_usuarios_admins_Email",
+                table: "usuarios_admins",
+                column: "Email",
+                unique: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "administrativos");
+                name: "alunos_turma");
 
             migrationBuilder.DropTable(
-                name: "alunos_turma");
+                name: "usuarios_administrativos");
+
+            migrationBuilder.DropTable(
+                name: "usuarios_admins");
 
             migrationBuilder.DropTable(
                 name: "alunos");
 
             migrationBuilder.DropTable(
                 name: "turmas");
+
+            migrationBuilder.DropTable(
+                name: "administrativos");
 
             migrationBuilder.DropTable(
                 name: "professores");

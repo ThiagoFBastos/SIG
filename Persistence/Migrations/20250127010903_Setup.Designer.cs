@@ -12,8 +12,8 @@ using Persistence.Context;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    [Migration("20250126195515_Administrativos")]
-    partial class Administrativos
+    [Migration("20250127010903_Setup")]
+    partial class Setup
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -412,10 +412,10 @@ namespace Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("2ea5e2e9-3661-4706-b747-c8137de54b90"),
+                            Id = new Guid("bc8862eb-5be7-4dfb-a1e4-b85c7072fb16"),
                             Email = "juliamagalhaes@outlook.com",
-                            PasswordHash = "fshIo7UdrAnmToluuZKDE8dBASVxSMBV+EixhhU7HUM=",
-                            SalString = "uLPAd/dP4O/Nhg+WIKC07g=="
+                            PasswordHash = "sMjTxzPJm/DGJB3yH2K0nWlLIRJJms6VQx+AqshSyNc=",
+                            SalString = "Ur0j4RP9p9ZZSh/uRx5PJw=="
                         });
                 });
 
