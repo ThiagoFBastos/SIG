@@ -127,7 +127,7 @@ namespace Persistence.Context
 
             modelBuilder.Entity<UsuarioAdmin>(a =>
             {
-                const string password = "15158114099Aa$";
+                const string password = "15158114099Aa$$";
                 string salString;
                 PasswordHash hash = new PasswordHash();
 
