@@ -94,6 +94,7 @@ namespace Services
 
             _repositoryManager.AlunoRepository.DeleteAluno(aluno);
             await _repositoryManager.SaveAsync();
+            await _enderecoService.DeletarEndereco(aluno.EnderecoId);
         }
         public async Task<AlunoDto> ObterAlunoPorMatricula(Guid matriculaAluno, GetAlunoOptions? opcoes = null)
         {

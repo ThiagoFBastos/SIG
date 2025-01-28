@@ -455,6 +455,7 @@ namespace UnitTests
 
             professorRepository.Setup(x => x.GetProfessorAsync(It.IsAny<Guid>(), null)).ReturnsAsync(professor);
             professorRepository.Setup(x => x.DeleteProfessor(It.IsAny<Professor>())).Verifiable();
+            _enderecoService.Setup(x => x.DeletarEndereco(It.IsAny<Guid>())).Verifiable();
             _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
             _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
 
@@ -462,6 +463,7 @@ namespace UnitTests
 
             professorRepository.VerifyAll();
             _repositoryManager.VerifyAll();
+            _enderecoService.VerifyAll();
         }
         
         [Fact]

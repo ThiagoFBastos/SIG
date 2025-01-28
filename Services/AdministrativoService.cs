@@ -12,7 +12,7 @@ using Shared.Dtos;
 using Shared.Pagination;
 
 namespace Services
-{
+{ // todo adicionar commit e rollback nas operações sql
     public class AdministrativoService: IAdministrativoService
     {
         private readonly IRepositoryManager _repositoryManager;
@@ -93,7 +93,6 @@ namespace Services
             return administrativoRetornado;
         }
 
-        /* Todo deletar o endereço também */
         public async Task DeletarAdministrativo(Guid administrativoMatricula)
         {
             Administrativo? administrativo = await _repositoryManager.AdministrativoRepository.GetAdministrativoAsync(administrativoMatricula);
@@ -106,6 +105,7 @@ namespace Services
 
             _repositoryManager.AdministrativoRepository.DeleteAdministrativo(administrativo);
             await _repositoryManager.SaveAsync();
+            await _enderecoService.DeletarEndereco(administrativo.EnderecoId);
         }
 
         public async Task<AdministrativoDto> ObterAdministrativoPorMatricula(Guid administrativoMatricula, GetAdministrativoOptions? opcoes = null)

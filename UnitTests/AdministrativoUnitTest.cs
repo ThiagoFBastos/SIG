@@ -464,6 +464,7 @@ namespace UnitTests
 
             administrativoRepository.Setup(x => x.GetAdministrativoAsync(It.IsAny<Guid>(), null)).ReturnsAsync(administrativo);
             administrativoRepository.Setup(x => x.DeleteAdministrativo(It.IsAny<Administrativo>())).Verifiable();
+            _enderecoService.Setup(x => x.DeletarEndereco(It.IsAny<Guid>())).Verifiable();
             _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
             _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
 
@@ -471,6 +472,7 @@ namespace UnitTests
 
             _repositoryManager.VerifyAll();
             administrativoRepository.VerifyAll();
+            _enderecoService.VerifyAll();
         }
         
         [Fact]

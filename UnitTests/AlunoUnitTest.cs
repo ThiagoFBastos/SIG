@@ -295,6 +295,7 @@ namespace UnitTests
 
             alunoRepository.Setup(x => x.GetAlunoAsync(It.IsAny<Guid>(), It.IsAny<GetAlunoOptions>())).ReturnsAsync(aluno);
             alunoRepository.Setup(x => x.DeleteAluno(It.IsAny<Aluno>())).Verifiable();
+            _enderecoService.Setup(x => x.DeletarEndereco(It.IsAny<Guid>())).Verifiable();
             _repositoryManager.SetupGet(x => x.AlunoRepository).Returns(alunoRepository.Object);
             _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
 
@@ -302,6 +303,7 @@ namespace UnitTests
 
             alunoRepository.VerifyAll();
             _repositoryManager.VerifyAll();
+            _enderecoService.VerifyAll();
         }
         
         [Fact]

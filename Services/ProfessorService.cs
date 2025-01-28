@@ -93,6 +93,7 @@ namespace Services
 
             _repositoryManager.ProfessorRepository.DeleteProfessor(professorReal);
             await _repositoryManager.SaveAsync();
+            await _enderecoService.DeletarEndereco(professorReal.EnderecoId);
         }
 
         public async Task<ProfessorDto> ObterProfessorPorMatricula(Guid matriculaProfessor, GetProfessorOptions? opcoes = null)
