@@ -13,7 +13,7 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,administrativo")]
     public class AlunoTurmaController : ControllerBase
     {
         private readonly IAlunoTurmaService _alunoTurmaService;
@@ -35,6 +35,7 @@ namespace API.Controllers
         }
 
         [HttpPut("student/{matricula}/from/{codigoTurma}")]
+        /* Todo separar as mudanças de turma e nota para o administrativo porque o administrativo só pode trocar a turma*/
         public async Task<IActionResult> Update([FromRoute] Guid matricula, [FromRoute] Guid codigoTurma, [FromBody] AlunoTurmaForUpdateDto alunoTurma)
         {
             AlunoTurmaDto resultado = await _alunoTurmaService.AlterarAlunoNaTurma(matricula, codigoTurma, alunoTurma);

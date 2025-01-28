@@ -12,7 +12,7 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,administrativo")]
     public class TurmaController : ControllerBase
     {
         private readonly ITurmaService _turmaService;
