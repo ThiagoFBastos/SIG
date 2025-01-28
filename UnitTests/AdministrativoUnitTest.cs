@@ -22,6 +22,7 @@ using Xunit.Abstractions;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using Domain.Entities.Users;
 
 namespace UnitTests
 {
@@ -32,7 +33,7 @@ namespace UnitTests
         private readonly IAdministrativoService _administrativoService;
         private readonly Mock<IEnderecoService> _enderecoService;
         private readonly ITestOutputHelper _output;
-
+        private readonly Mock<IUsuarioAdministrativoService> _usuarioAdministrativoService;
         public AdministrativoUnitTest(ITestOutputHelper output)
         {
             _output = output;
@@ -47,8 +48,9 @@ namespace UnitTests
             var logger = factory.CreateLogger<AdministrativoService>();
 
             _enderecoService = new Mock<IEnderecoService>();
+            _usuarioAdministrativoService = new Mock<IUsuarioAdministrativoService>();
 
-            _administrativoService = new AdministrativoService(_repositoryManager.Object, logger, _mapper, _enderecoService.Object);
+            _administrativoService = new AdministrativoService(_repositoryManager.Object, logger, _mapper, _enderecoService.Object, _usuarioAdministrativoService.Object);
         }
  
         [Fact]
@@ -94,11 +96,13 @@ namespace UnitTests
             _repositoryManager.SetupGet(x => x.AdministrativoRepository).Returns(administrativoRepository.Object);
             _enderecoService.Setup(x => x.CadastrarEndereco(It.IsAny<EnderecoForCreateDto>())).ReturnsAsync(Guid.NewGuid());
             _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
+            _usuarioAdministrativoService.Setup(x => x.CadastraUsuarioAdministrativo(It.IsAny<UsuarioAdministrativoForCreateDto>())).Verifiable();
 
             Guid matricula = await _administrativoService.CadastrarAdmnistrativo(administrativoForCreate);
 
             _repositoryManager.VerifyAll();
             administrativoRepository.VerifyAll();
+            _usuarioAdministrativoService.VerifyAll();
         }
         
         [Fact]

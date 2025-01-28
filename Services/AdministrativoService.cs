@@ -19,13 +19,15 @@ namespace Services
         private readonly ILogger<AdministrativoService> _logger;
         private readonly IMapper _mapper;
         private readonly IEnderecoService _enderecoService;
+        private readonly IUsuarioAdministrativoService _usuarioAdministrativoService;
 
-        public AdministrativoService(IRepositoryManager repositoryManager, ILogger<AdministrativoService> logger, IMapper mapper, IEnderecoService enderecoService)
+        public AdministrativoService(IRepositoryManager repositoryManager, ILogger<AdministrativoService> logger, IMapper mapper, IEnderecoService enderecoService, IUsuarioAdministrativoService usuarioAdministrativoService)
         {
             _repositoryManager = repositoryManager;
             _logger = logger;
             _mapper = mapper;
             _enderecoService = enderecoService;
+            _usuarioAdministrativoService = usuarioAdministrativoService;
         }
 
         public async Task<Guid> CadastrarAdmnistrativo(AdministrativoForCreateDto administrativo)
@@ -60,6 +62,15 @@ namespace Services
             _repositoryManager.AdministrativoRepository.AddAdministrativo(administrativoReal);
             await _repositoryManager.SaveAsync();
 
+            UsuarioAdministrativoForCreateDto ausuarioAministrativoForCreateDto = new UsuarioAdministrativoForCreateDto
+            {
+                AdministrativoMatricula = administrativoReal.Matricula,
+                Email = administrativoReal.Email,
+                Password = administrativoReal.CPF
+            };
+
+            await _usuarioAdministrativoService.CadastraUsuarioAdministrativo(ausuarioAministrativoForCreateDto);
+
             return administrativoReal.Matricula;
         }
 
@@ -82,6 +93,7 @@ namespace Services
             return administrativoRetornado;
         }
 
+        /* Todo deletar o endereço também */
         public async Task DeletarAdministrativo(Guid administrativoMatricula)
         {
             Administrativo? administrativo = await _repositoryManager.AdministrativoRepository.GetAdministrativoAsync(administrativoMatricula);
