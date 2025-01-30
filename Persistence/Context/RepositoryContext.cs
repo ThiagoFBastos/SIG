@@ -19,6 +19,7 @@ namespace Persistence.Context
         public DbSet<AlunoTurma> AlunosTurmas { get; private set; }
         public DbSet<UsuarioAdmin> UsuarioAdmins { get; private set; }
         public DbSet<UsuarioAdministrativo> UsuarioAdministrativos { get; private set; }
+        public DbSet<UsuarioProfessor> UsuarioProfessores { get; private set; }
         public RepositoryContext(DbContextOptions<RepositoryContext> options) : base(options)
         {
 
@@ -147,6 +148,16 @@ namespace Persistence.Context
                 a.HasOne(a => a.Administrativo)
                     .WithMany()
                     .HasForeignKey(a => a.AdministrativoMatricula);
+            });
+
+            modelBuilder.Entity<UsuarioProfessor>(p =>
+            {
+                p.HasIndex(a => a.Email)
+                    .IsUnique();
+
+                p.HasOne(a => a.Professor)
+                    .WithMany()
+                    .HasForeignKey(a => a.ProfessorMatricula);
             });
 
             base.OnModelCreating(modelBuilder);
