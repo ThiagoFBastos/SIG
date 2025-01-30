@@ -10,7 +10,7 @@ namespace Shared.Dtos
     public record class UsuarioProfessorDto: UsuarioDto
     {
         [JsonPropertyName("matricula_professor")]
-        public required Guid Matricula { get; set; }
+        public required Guid ProfessorMatricula { get; set; }
 
         [JsonPropertyName("professor")]
         public required ProfessorDto Professor { get; set; }
