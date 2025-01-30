@@ -12,7 +12,7 @@ namespace Services.Contracts
         Task<string> Login(LoginUsuarioDto loginUsuarioDto);
         Task CadastraUsuarioProfessor(UsuarioProfessorForCreeateDto usuarioProfessorDto);
         Task AlteraSenhaUsuarioProfessor(Guid id, ChangeUsuarioPasswordDto changePasswordDto);
-        Task<UsuarioProfessor> ObterUsuarioProfessor(Guid id);
-        Task<UsuarioProfessor> ObterUsuarioProfessorPorEmail(string email);
+        Task<UsuarioProfessorDto> ObterUsuarioProfessor(Guid id);
+        Task<UsuarioProfessorDto> ObterUsuarioProfessorPorEmail(string email);
     }
 }
