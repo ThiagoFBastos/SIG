@@ -291,7 +291,7 @@ namespace UnitTests
         }
 
         [Fact]
-        public void Test_If_UsuarioorCreateDto_Mapper_Is_Working()
+        public void Test_If_UsuarioProfessorCreateDto_Mapper_Is_Working()
         {
             UsuarioProfessorForCreateDto usuarioProfessorForCreate = new UsuarioProfessorForCreateDto
             {
