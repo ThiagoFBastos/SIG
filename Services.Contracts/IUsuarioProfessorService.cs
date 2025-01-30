@@ -1,3 +1,5 @@
+using Domain.Entities.Users;
+using Shared.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +9,13 @@ namespace Services.Contracts
 {
     public interface IUsuarioProfessorService
     {
-        
+        Task<string> Login(LoginUsuarioDto loginUsuarioDto);
+        Task CadastraUsuarioProfessor(UsuarioProfessorForCreeateDto usuarioProfessorDtoo);
+
+        Task AlteraSenhaUsuarioProfessor(Guid id, ChangeUsuarioPasswordDto changePasswordDto);
+
+        Task<UsuarioProfessor> ObterUsuarioProfessor(Guid id);
+
+        Task<UsuarioProfessor> ObterUsuarioProfessorPorEmail(string email);
     }
 }
