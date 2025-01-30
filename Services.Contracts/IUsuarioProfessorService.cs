@@ -10,7 +10,7 @@ namespace Services.Contracts
     public interface IUsuarioProfessorService
     {
         Task<string> Login(LoginUsuarioDto loginUsuarioDto);
-        Task CadastraUsuarioProfessor(UsuarioProfessorForCreeateDto usuarioProfessorDto);
+        Task CadastraUsuarioProfessor(UsuarioProfessorForCreateDto usuarioProfessorDto);
         Task AlteraSenhaUsuarioProfessor(Guid id, ChangeUsuarioPasswordDto changePasswordDto);
         Task<UsuarioProfessorDto> ObterUsuarioProfessor(Guid id);
         Task<UsuarioProfessorDto> ObterUsuarioProfessorPorEmail(string email);

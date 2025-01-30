@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Shared.Dtos
 {
-    public class UsuarioProfessorForCreeateDto: UsuarioForCreateDto
+    public class UsuarioProfessorForCreateDto: UsuarioForCreateDto
     {
         [JsonPropertyName("professor_matricula")]
         public required Guid ProfessorMatricula { get; set; }
