@@ -13,6 +13,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Services.Mappers;
+using Shared.Dtos.Abstract;
+using System.Security.Claims;
 
 namespace UnitTests
 {
@@ -40,6 +42,98 @@ namespace UnitTests
             var logger = factory.CreateLogger<UsuarioProfessorService>();
 
             _usuarioProfessorService = new UsuarioProfessorService(logger: logger, mapper: _mapper, passwordHash: _passwordHash.Object, repositoryManaher: _repositoryManager.Object, tokensService: _tokensService.Object);
+        }
+
+        [Fact]
+        public async Task Test_Login_UsuarioProfessor_Must_Work()
+        {
+            LoginUsuarioDto loginDto = new LoginUsuarioDto
+            {
+                Email = "satorogojo@gmail.com",
+                Password = "seis olhos"
+            };
+
+            UsuarioProfessor usuario = new UsuarioProfessor
+            {
+                Id = Guid.NewGuid(),
+                Email = "satorogojo@gmail.com",
+                PasswordHash = "9ienjnejeik$##1/<çeçe$",
+                SalString = "elel3903L)$(%!",
+                ProfessorMatricula = Guid.NewGuid()
+            };
+
+            _usuarioProfessorRepository.Setup(y => y.GetProfessorByEmailAsync(It.IsAny<string>())).ReturnsAsync(usuario);
+            _passwordHash.Setup(y => y.Decrypt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(true);
+            _repositoryManager.SetupGet(y => y.UsuarioProfessorRepository).Returns(_usuarioProfessorRepository.Object);
+            _tokensService.Setup(y => y.JwtToken(It.IsAny<List<Claim>>())).Returns("Muryōkūsho");
+
+            string token = await _usuarioProfessorService.Login(loginDto);
+
+            Assert.Equal("Muryōkūsho", token);
+        }
+
+        [Fact]
+        public async Task Test_Login_UsuarioProfessor_Shouldnt_Work_Email_NotFound()
+        {
+            LoginUsuarioDto loginDto = new LoginUsuarioDto
+            {
+                Email = "satorogojo@gmail.com",
+                Password = "seis olhos"
+            };
+
+            _usuarioProfessorRepository.Setup(y => y.GetProfessorByEmailAsync(It.IsAny<string>())).ReturnsAsync((UsuarioProfessor?)null);
+            _repositoryManager.SetupGet(y => y.UsuarioProfessorRepository).Returns(_usuarioProfessorRepository.Object);
+
+            try
+            {
+                _ = await _usuarioProfessorService.Login(loginDto);
+                Assert.Fail();
+            }
+            catch(NotFoundException ex)
+            {
+                Assert.Equal("email não encontrado", ex.Message);
+            }
+            catch
+            {
+                Assert.Fail();
+            }
+        }
+
+        [Fact]
+        public async Task Test_Login_UsuarioProfessor_Shouldnt_Work_Password_Is_Incorrect()
+        {
+            LoginUsuarioDto loginDto = new LoginUsuarioDto
+            {
+                Email = "satorogojo@gmail.com",
+                Password = "seis olhos"
+            };
+
+            UsuarioProfessor usuario = new UsuarioProfessor
+            {
+                Id = Guid.NewGuid(),
+                Email = "satorogojo@gmail.com",
+                PasswordHash = "9ienjnejeik$##1/<çeçe$",
+                SalString = "elel3903L)$(%!",
+                ProfessorMatricula = Guid.NewGuid()
+            };
+
+            _usuarioProfessorRepository.Setup(y => y.GetProfessorByEmailAsync(It.IsAny<string>())).ReturnsAsync(usuario);
+            _passwordHash.Setup(y => y.Decrypt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(false);
+            _repositoryManager.SetupGet(y => y.UsuarioProfessorRepository).Returns(_usuarioProfessorRepository.Object);
+
+            try
+            {
+                string token = await _usuarioProfessorService.Login(loginDto);
+                Assert.Fail();
+            }
+            catch(UnauthorizedException ex)
+            {
+                Assert.Equal("email e/ou senha incorretos", ex.Message);
+            }
+            catch
+            {
+                Assert.Fail();
+            }
         }
 
         [Fact]
