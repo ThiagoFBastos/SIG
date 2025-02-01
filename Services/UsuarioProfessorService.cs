@@ -37,8 +37,8 @@ namespace Services
 
             if (usuario is null)
             {
-                _logger.LogError($"o usuário: {loginUsuarioDto.Email} com senha: {loginUsuarioDto.Password} não foi encontrado");
-                throw new UnauthorizedException("email e/ou senha incorretos");
+                _logger.LogError($"o usuário: {loginUsuarioDto.Email} não foi encontrado");
+                throw new NotFoundException("email não encontrado");
             }
 
             else if (!_passwordHash.Decrypt(loginUsuarioDto.Password, usuario.PasswordHash, usuario.SalString))
