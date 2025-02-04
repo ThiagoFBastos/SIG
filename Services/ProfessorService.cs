@@ -19,12 +19,14 @@ namespace Services
         private readonly ILogger<ProfessorService> _logger;
         private readonly IMapper _mapper;
         private readonly IEnderecoService _enderecoService;
-        public ProfessorService(IRepositoryManager repositoryManager, ILogger<ProfessorService> logger, IMapper mapper, IEnderecoService enderecoService)
+        private readonly IUsuarioProfessorService _usuarioProfessorService;
+        public ProfessorService(IRepositoryManager repositoryManager, ILogger<ProfessorService> logger, IMapper mapper, IEnderecoService enderecoService, IUsuarioProfessorService usuarioProfessorService)
         {
             _repositoryManager = repositoryManager;
             _logger = logger;
             _mapper = mapper;
             _enderecoService = enderecoService;
+            _usuarioProfessorService = usuarioProfessorService;
         } 
 
         public async Task<Guid> CadastrarProfessor(ProfessorForCreateDto professor)
@@ -58,6 +60,15 @@ namespace Services
 
             _repositoryManager.ProfessorRepository.AddProfessor(professorReal);
             await _repositoryManager.SaveAsync();
+
+            UsuarioProfessorForCreateDto usuarioProfessorForCreate = new UsuarioProfessorForCreateDto
+            {
+                ProfessorMatricula = professorReal.Matricula,
+                Email = professorReal.Email,
+                Password = professorReal.CPF
+            };
+
+            await _usuarioProfessorService.CadastraUsuarioProfessor(usuarioProfessorForCreate);
 
             return professorReal.Matricula;
         }

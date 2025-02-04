@@ -19,12 +19,14 @@ namespace Services
         private readonly ILogger<AlunoService> _logger;
         private readonly IMapper _mapper;
         private readonly IEnderecoService _enderecoService;
-        public AlunoService(IRepositoryManager repositoryManager, ILogger<AlunoService> logger, IMapper mapper, IEnderecoService enderecoService)
+        private readonly IUsuarioAlunoService _usuarioAlunoService;
+        public AlunoService(IRepositoryManager repositoryManager, ILogger<AlunoService> logger, IMapper mapper, IEnderecoService enderecoService, IUsuarioAlunoService usuarioAlunoService)
         {
             _repositoryManager = repositoryManager;
             _logger = logger;
             _mapper = mapper;
             _enderecoService = enderecoService;
+            _usuarioAlunoService = usuarioAlunoService;
         }
 
         public async Task<Guid> CadastrarAluno(AlunoForCreateDto aluno)
@@ -59,6 +61,15 @@ namespace Services
 
             _repositoryManager.AlunoRepository.AddAluno(alunoReal);
             await _repositoryManager.SaveAsync();
+
+            UsuarioAlunoForCreateDto usuarioAlunoForCreate = new UsuarioAlunoForCreateDto
+            {
+                AlunoMatricula = alunoReal.Matricula,
+                Email = alunoReal.Email,
+                Password = alunoReal.CPF
+            };
+
+            await _usuarioAlunoService.CadastraUsuarioAluno(usuarioAlunoForCreate);
 
             return alunoReal.Matricula;
         }
