@@ -36,6 +36,7 @@ namespace API.Controllers
 
         [HttpPut("student/{matricula}/from/{codigoTurma}")]
         /* Todo separar as mudanças de turma e nota para o administrativo porque o administrativo só pode trocar a turma*/
+        [Authorize(Roles = "professor")]
         public async Task<IActionResult> Update([FromRoute] Guid matricula, [FromRoute] Guid codigoTurma, [FromBody] AlunoTurmaForUpdateDto alunoTurma)
         {
             AlunoTurmaDto resultado = await _alunoTurmaService.AlterarAlunoNaTurma(matricula, codigoTurma, alunoTurma);
@@ -50,6 +51,7 @@ namespace API.Controllers
         }
 
         [HttpGet("find/{alunoMatricula}/from/{codigoTurma}")]
+        [Authorize(Roles = "admin,administrativo,professor")]
         public async Task<IActionResult> Get([FromRoute] Guid alunoMatricula, [FromRoute] Guid codigoTurma, [FromQuery] GetAlunoTurmaOptions? opcoes = null)
         {
             AlunoTurmaDto aluno = await _alunoTurmaService.ObterAlunoDaTurma(alunoMatricula, codigoTurma, opcoes);
@@ -57,6 +59,7 @@ namespace API.Controllers
         }
 
         [HttpGet("find/{codigoAlunoTurma}")]
+        [Authorize(Roles = "admin,administrativo,professor")]
         public async Task<IActionResult> Get([FromRoute] Guid codigoAlunoTurma, [FromQuery] GetAlunoTurmaOptions? opcoes = null)
         {
             AlunoTurmaDto aluno = await _alunoTurmaService.ObterAlunoDatTurmaPorCodigo(codigoAlunoTurma, opcoes);

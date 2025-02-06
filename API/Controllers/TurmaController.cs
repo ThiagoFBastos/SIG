@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Contracts;
@@ -52,13 +53,16 @@ namespace API.Controllers
         }
 
         [HttpGet("{codigo}")]
+        [Authorize(Roles = "admin,administrativo,professor,aluno")]
         public async Task<IActionResult> Get([FromRoute] Guid codigo, [FromQuery] GetTurmaOptions? opcoes = null)
         {
             TurmaDto turma = await _turmaService.ObterTurmaPorCodigo(codigo, opcoes);
+
             return Ok(turma);
         }
 
         [HttpGet("filter")]
+        [Authorize(Roles = "admin,administrativo,professor,aluno")]
         public async Task<IActionResult> Filter([FromQuery] GetTurmasOptions opcoes)
         {
             if(!ModelState.IsValid)
