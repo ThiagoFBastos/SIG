@@ -67,6 +67,10 @@ namespace API.Validators
             RuleFor(p => p.Sexo)
                 .NotNull().WithMessage("o sexo é obrigatório")
                 .Must(sexo => Enum.IsDefined(typeof(Sexo), sexo)).WithMessage("o sexo deve ser válido");
+
+            RuleFor(p => p.Endereco)
+                .NotNull().WithMessage("o endereço não pode ser nulo")
+                .SetValidator(new EnderecoForCreateValidator());
         }
     }
 }
