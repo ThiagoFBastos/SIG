@@ -13,7 +13,6 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "admin,administrativo")]
     public class AlunoTurmaController : ControllerBase
     {
         private readonly IAlunoTurmaService _alunoTurmaService;
@@ -24,6 +23,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> Add([FromBody] AlunoTurmaForCreateDto alunoTurma)
         {
             if(!ModelState.IsValid)
@@ -44,6 +44,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("remove/{alunoMatricula}/from/{codigoTurma}")]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> Delete([FromRoute] Guid alunoMatricula, [FromRoute] Guid codigoTurma)
         {
             await _alunoTurmaService.DeletarAlunoDaTurma(alunoMatricula, codigoTurma);
@@ -51,7 +52,8 @@ namespace API.Controllers
         }
 
         [HttpGet("find/{alunoMatricula}/from/{codigoTurma}")]
-        [Authorize(Roles = "admin,administrativo,professor")]
+        [Authorize(Roles = "admin,administrativo,professor,aluno")]
+        /* Todo: quando for aluno, tentar ver se são suas próprias informações */
         public async Task<IActionResult> Get([FromRoute] Guid alunoMatricula, [FromRoute] Guid codigoTurma, [FromQuery] GetAlunoTurmaOptions? opcoes = null)
         {
             AlunoTurmaDto aluno = await _alunoTurmaService.ObterAlunoDaTurma(alunoMatricula, codigoTurma, opcoes);
@@ -59,7 +61,8 @@ namespace API.Controllers
         }
 
         [HttpGet("find/{codigoAlunoTurma}")]
-        [Authorize(Roles = "admin,administrativo,professor")]
+        [Authorize(Roles = "admin,administrativo,professor,aluno")]
+        /* Todo: quando for aluno, tentar ver se são suas próprias informações */
         public async Task<IActionResult> Get([FromRoute] Guid codigoAlunoTurma, [FromQuery] GetAlunoTurmaOptions? opcoes = null)
         {
             AlunoTurmaDto aluno = await _alunoTurmaService.ObterAlunoDatTurmaPorCodigo(codigoAlunoTurma, opcoes);

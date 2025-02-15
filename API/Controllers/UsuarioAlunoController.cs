@@ -51,7 +51,8 @@ namespace API.Controllers
         }
 
         [HttpGet("by/id/{id}")]
-        [Authorize(Roles = "admin,administrativo,professor,aluno")]
+        [Authorize(Roles = "admin,administrativo,aluno")]
+        /* Todo: incluir entidade aluno com parâmetro opcional*/
         public async Task<IActionResult> GetById(Guid id)
         {
             if(User.IsInRole("aluno"))
@@ -75,7 +76,8 @@ namespace API.Controllers
         }
 
         [HttpGet("by/email/{email}")]
-        [Authorize(Roles = "admin,administrativo,professor,aluno")]
+        [Authorize(Roles = "admin,administrativo,aluno")]
+        /* Todo: incluir entidade aluno com parâmetro opcional*/
         public async Task<IActionResult> GetByEmail(string email)
         {
             if(User.IsInRole("aluno"))

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +13,6 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "admin,administrativo")]
     public class ProfessorController : ControllerBase
     {
         private readonly IProfessorService _professorService;
@@ -23,6 +23,7 @@ namespace API.Controllers
         } 
 
         [HttpPost]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> Add([FromBody] ProfessorForCreateDto professor)
         {
             if(!ModelState.IsValid)
@@ -34,6 +35,7 @@ namespace API.Controllers
         }
 
         [HttpPut("{matricula}")]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> Update([FromRoute] Guid matricula, [FromBody] ProfessorForUpdateDto professor)
         {
             if(!ModelState.IsValid)
@@ -45,6 +47,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("{matricula}")]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> Delete([FromRoute] Guid matricula)
         {
             await _professorService.DeletarProfessor(matricula);
@@ -52,6 +55,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{matricula}")]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> Get([FromRoute] Guid matricula, [FromQuery] GetProfessorOptions? opcoes = null)
         {
             ProfessorDto professor = await _professorService.ObterProfessorPorMatricula(matricula, opcoes);
@@ -59,6 +63,7 @@ namespace API.Controllers
         }
 
         [HttpGet("by/cpf/{cpf}")]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> GetByCPF([FromRoute] string cpf, [FromQuery] GetProfessorOptions? opcoes = null)
         {
             ProfessorDto professor = await _professorService.ObterProfessorPorCPF(cpf, opcoes);
@@ -66,6 +71,7 @@ namespace API.Controllers
         }
 
         [HttpGet("by/rg/{rg}")]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> GetByRG([FromRoute] string rg, [FromQuery] GetProfessorOptions? opcoes = null)
         {
             ProfessorDto professor = await _professorService.ObterProfessorPorRG(rg, opcoes);
@@ -73,6 +79,7 @@ namespace API.Controllers
         }
 
         [HttpGet("by/email/{email}")]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> GetByEmail([FromRoute] string email, [FromQuery] GetProfessorOptions? opcoes = null)
         {
             ProfessorDto professor = await _professorService.ObterProfessorPeloEmail(email, opcoes);
@@ -80,6 +87,7 @@ namespace API.Controllers
         }
 
         [HttpGet("by/celular/{celular}")]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> GetByCelular([FromRoute] string celular, [FromQuery] GetProfessorOptions? opcoes = null)
         {
             ProfessorDto professor = await _professorService.ObterProfessorPeloCelular(celular, opcoes);
@@ -87,6 +95,7 @@ namespace API.Controllers
         }
 
         [HttpGet("filter")]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> Filter([FromQuery] GetProfessoresOptions opcoes)
         {
             if(!ModelState.IsValid)

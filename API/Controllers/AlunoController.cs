@@ -12,7 +12,6 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "admin,administrativo")]
     public class AlunoController : ControllerBase
     {
         private readonly IAlunoService _alunoService;
@@ -23,6 +22,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> Add([FromBody] AlunoForCreateDto aluno)
         {
             if(!ModelState.IsValid)
@@ -34,6 +34,7 @@ namespace API.Controllers
         }
 
         [HttpPut("{matricula}")]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> Update([FromRoute] Guid matricula, [FromBody] AlunoForUpdateDto aluno)
         {
             if(!ModelState.IsValid)
@@ -45,6 +46,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("{matricula}")]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> Delete([FromRoute] Guid matricula)
         {
             await _alunoService.DeletarAluno(matricula);
@@ -52,6 +54,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{matricula}")]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> Get([FromRoute] Guid matricula, [FromQuery] GetAlunoOptions? opcoes = null)
         {
             AlunoDto aluno = await _alunoService.ObterAlunoPorMatricula(matricula, opcoes);
@@ -59,6 +62,7 @@ namespace API.Controllers
         }
 
         [HttpGet("by/cpf/{cpf}")]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> GetByCPF([FromRoute] string cpf, [FromQuery] GetAlunoOptions? opcoes = null)
         {
             AlunoDto aluno = await _alunoService.ObterAlunoPorCPF(cpf, opcoes);
@@ -66,6 +70,7 @@ namespace API.Controllers
         }
 
         [HttpGet("by/rg/{rg}")]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> GetByRG([FromRoute] string rg, [FromQuery] GetAlunoOptions? opcoes = null)
         {
             AlunoDto aluno = await _alunoService.ObterAlunoPorRG(rg, opcoes);
@@ -73,6 +78,8 @@ namespace API.Controllers
         }
 
         [HttpGet("by/email/{email}")]
+        [Authorize(Roles = "admin,administrativo")]
+
         public async Task<IActionResult> GetByEmail([FromRoute] string email, [FromQuery] GetAlunoOptions? opcoes = null)
         {
             AlunoDto aluno = await _alunoService.ObterAlunoPeloEmail(email, opcoes);
@@ -80,6 +87,7 @@ namespace API.Controllers
         }
 
         [HttpGet("by/celular/{celular}")]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> GetByCelular([FromRoute] string celular, [FromQuery] GetAlunoOptions? opcoes = null)
         {
             AlunoDto aluno = await _alunoService.ObterAlunoPeloCelular(celular, opcoes);
@@ -87,6 +95,7 @@ namespace API.Controllers
         }
 
         [HttpGet("filter")]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> Filter([FromQuery] GetAlunosOptions opcoes)
         {
             if(!ModelState.IsValid)

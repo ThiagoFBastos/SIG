@@ -13,7 +13,6 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "admin,administrativo")]
     public class TurmaController : ControllerBase
     {
         private readonly ITurmaService _turmaService;
@@ -24,6 +23,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> Add([FromBody] TurmaForCreateDto turma)
         {
             if(!ModelState.IsValid)
@@ -35,6 +35,7 @@ namespace API.Controllers
         }
 
         [HttpPut("{codigo}")]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> Update([FromRoute] Guid codigo, [FromBody] TurmaForUpdateDto turma)
         {
             if(!ModelState.IsValid)
@@ -46,6 +47,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("{codigo}")]
+        [Authorize(Roles = "admin,administrativo")]
         public async Task<IActionResult> Delete([FromRoute] Guid codigo)
         {
             await _turmaService.DeletarTurma(codigo);
@@ -54,6 +56,7 @@ namespace API.Controllers
 
         [HttpGet("{codigo}")]
         [Authorize(Roles = "admin,administrativo,professor,aluno")]
+        /* Todo: esconder dados sensíveis dos alunos ao incluir todos os alunos: como nota quando for um aluno requisitando*/
         public async Task<IActionResult> Get([FromRoute] Guid codigo, [FromQuery] GetTurmaOptions? opcoes = null)
         {
             TurmaDto turma = await _turmaService.ObterTurmaPorCodigo(codigo, opcoes);
@@ -63,6 +66,7 @@ namespace API.Controllers
 
         [HttpGet("filter")]
         [Authorize(Roles = "admin,administrativo,professor,aluno")]
+        /* Todo: esconder dados sensíveis dos alunos ao incluir todos os alunos*/
         public async Task<IActionResult> Filter([FromQuery] GetTurmasOptions opcoes)
         {
             if(!ModelState.IsValid)
