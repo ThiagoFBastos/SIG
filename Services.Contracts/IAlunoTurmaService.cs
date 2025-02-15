@@ -13,6 +13,10 @@ namespace Services.Contracts
 
         Task<AlunoTurmaDto> AlterarAlunoNaTurma(Guid matriculaAluno, Guid codigoTurma, AlunoTurmaForUpdateDto alunoTurma);
 
+        Task<AlunoTurmaDto> AlterarTurma(Guid matriculaAluno, Guid codigoTurma, AlunoTurmaChangeTurmaDto changeTurma);
+
+        Task<AlunoTurmaDto> AlterarNota(Guid matriculaAluno, Guid codigoTurma, AlunoTurmaChangeNotaDto changeTurma);
+
         Task DeletarAlunoDaTurma(Guid matriculaAluno, Guid codigoTurma);
 
         Task<AlunoTurmaDto> ObterAlunoDaTurma(Guid matriculaAluno, Guid codigoTurma, GetAlunoTurmaOptions? opcoes = null);

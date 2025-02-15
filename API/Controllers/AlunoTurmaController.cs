@@ -34,13 +34,23 @@ namespace API.Controllers
             return Ok(new GuidResponseDto(codigo));
         }
 
-        [HttpPut("student/{matricula}/from/{codigoTurma}")]
-        /* Todo separar as mudanças de turma e nota para o administrativo porque o administrativo só pode trocar a turma*/
-        [Authorize(Roles = "professor")]
-        public async Task<IActionResult> Update([FromRoute] Guid matricula, [FromRoute] Guid codigoTurma, [FromBody] AlunoTurmaForUpdateDto alunoTurma)
+        [HttpPut("changeTurma/{matricula}/from/{codigoTurma}")]
+        [Authorize(Roles = "admin,administrativo")]
+        public async Task<IActionResult> UpdateTurma([FromRoute] Guid matricula, [FromRoute] Guid codigoTurma, [FromBody] AlunoTurmaChangeTurmaDto changeTurma)
         {
-            AlunoTurmaDto resultado = await _alunoTurmaService.AlterarAlunoNaTurma(matricula, codigoTurma, alunoTurma);
-            return Ok(resultado);
+            AlunoTurmaDto alunoTurma = await _alunoTurmaService.AlterarTurma(matriculaAluno: matricula, codigoTurma: codigoTurma, changeTurma: changeTurma);
+            return Ok(alunoTurma);
+        }
+
+        [HttpPut("changeNota/{matricula}/from/{codigoTurma}")]
+        [Authorize(Roles = "professor")]
+        public async Task<IActionResult> UpdateNota([FromRoute] Guid matricula, [FromRoute] Guid codigoTurma, [FromBody] AlunoTurmaChangeNotaDto changeNota)
+        {
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(changeNota);
+
+            AlunoTurmaDto alunoTurma = await _alunoTurmaService.AlterarNota(matriculaAluno: matricula, codigoTurma: codigoTurma, changeTurma: changeNota);
+            return Ok(alunoTurma);
         }
 
         [HttpDelete("remove/{alunoMatricula}/from/{codigoTurma}")]
