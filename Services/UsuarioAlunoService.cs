@@ -5,6 +5,7 @@ using Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using Services.Contracts;
 using Shared.Dtos;
+using Shared.Pagination;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -98,9 +99,9 @@ namespace Services
             _repositoryManager.UsuarioAlunoRepository.UpdateUsuarioAluno(usuario);
             await _repositoryManager.SaveAsync();
         }
-        public async Task<UsuarioAlunoDto> ObterUsuarioAluno(Guid id)
+        public async Task<UsuarioAlunoDto> ObterUsuarioAluno(Guid id, GetUsuarioAlunoOptions? opcoes = null)
         {
-            UsuarioAluno? usuario = await _repositoryManager.UsuarioAlunoRepository.GetAlunoAsync(id);
+            UsuarioAluno? usuario = await _repositoryManager.UsuarioAlunoRepository.GetAlunoAsync(id, opcoes);
 
             if(usuario is null)
             {
@@ -112,9 +113,9 @@ namespace Services
 
             return usuarioDto;
         }
-        public async Task<UsuarioAlunoDto> ObterUsuarioAlunoPorEmail(string email)
+        public async Task<UsuarioAlunoDto> ObterUsuarioAlunoPorEmail(string email, GetUsuarioAlunoOptions? opcoes = null)
         {
-            UsuarioAluno? usuario = await _repositoryManager.UsuarioAlunoRepository.GetAlunoByEmailAsync(email);
+            UsuarioAluno? usuario = await _repositoryManager.UsuarioAlunoRepository.GetAlunoByEmailAsync(email, opcoes);
 
             if (usuario is null)
             {

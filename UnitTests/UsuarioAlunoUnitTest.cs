@@ -16,6 +16,7 @@ using Domain.Entities.Users;
 using System.Security.Claims;
 using Domain.Exceptions;
 using Domain.Entities.Abstract;
+using Shared.Pagination;
 
 namespace UnitTests
 {
@@ -63,7 +64,7 @@ namespace UnitTests
                 Id = Guid.NewGuid()
             };
 
-            _usuarioAlunoRepository.Setup(y => y.GetAlunoByEmailAsync(It.IsAny<string>())).ReturnsAsync(usuario);
+            _usuarioAlunoRepository.Setup(y => y.GetAlunoByEmailAsync(It.IsAny<string>(), It.IsAny<GetUsuarioAlunoOptions>())).ReturnsAsync(usuario);
             _passwordHash.Setup(y => y.Decrypt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(true);
             _repositoryManager.SetupGet(y => y.UsuarioAlunoRepository).Returns(_usuarioAlunoRepository.Object);
             _tokensService.Setup(y => y.JwtToken(It.IsAny<List<Claim>>())).Returns("expansão de domínio");
@@ -84,7 +85,7 @@ namespace UnitTests
             };
 
        
-            _usuarioAlunoRepository.Setup(y => y.GetAlunoByEmailAsync(It.IsAny<string>())).ReturnsAsync((UsuarioAluno?)null);
+            _usuarioAlunoRepository.Setup(y => y.GetAlunoByEmailAsync(It.IsAny<string>(), It.IsAny<GetUsuarioAlunoOptions>())).ReturnsAsync((UsuarioAluno?)null);
             _repositoryManager.SetupGet(y => y.UsuarioAlunoRepository).Returns(_usuarioAlunoRepository.Object);
 
             try
@@ -121,7 +122,7 @@ namespace UnitTests
                 Id = Guid.NewGuid()
             };
 
-            _usuarioAlunoRepository.Setup(y => y.GetAlunoByEmailAsync(It.IsAny<string>())).ReturnsAsync(usuario);
+            _usuarioAlunoRepository.Setup(y => y.GetAlunoByEmailAsync(It.IsAny<string>(), It.IsAny<GetUsuarioAlunoOptions>())).ReturnsAsync(usuario);
             _passwordHash.Setup(y => y.Decrypt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(false);
             _repositoryManager.SetupGet(y => y.UsuarioAlunoRepository).Returns(_usuarioAlunoRepository.Object);
 
@@ -150,7 +151,7 @@ namespace UnitTests
                 AlunoMatricula = Guid.NewGuid()
             };
 
-            _usuarioAlunoRepository.Setup(x => x.GetAlunoByEmailAsync(It.IsAny<string>())).ReturnsAsync((UsuarioAluno?)null);
+            _usuarioAlunoRepository.Setup(x => x.GetAlunoByEmailAsync(It.IsAny<string>(), It.IsAny<GetUsuarioAlunoOptions>())).ReturnsAsync((UsuarioAluno?)null);
             _usuarioAlunoRepository.Setup(x => x.AddUsuarioAluno(It.IsAny<UsuarioAluno>())).Verifiable();
             _repositoryManager.SetupGet(x => x.UsuarioAlunoRepository).Returns(_usuarioAlunoRepository.Object);
             _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
@@ -183,7 +184,7 @@ namespace UnitTests
                 SalString = "/E.Eo4o4o%09-ofkr<"
             };
 
-            _usuarioAlunoRepository.Setup(x => x.GetAlunoByEmailAsync(It.IsAny<string>())).ReturnsAsync(usuario);
+            _usuarioAlunoRepository.Setup(x => x.GetAlunoByEmailAsync(It.IsAny<string>(), It.IsAny<GetUsuarioAlunoOptions>())).ReturnsAsync(usuario);
             _repositoryManager.SetupGet(x => x.UsuarioAlunoRepository).Returns(_usuarioAlunoRepository.Object);
 
             try
@@ -221,7 +222,7 @@ namespace UnitTests
 
             string saltString;
 
-            _usuarioAlunoRepository.Setup(x => x.GetAlunoAsync(It.IsAny<Guid>())).ReturnsAsync(usuario);
+            _usuarioAlunoRepository.Setup(x => x.GetAlunoAsync(It.IsAny<Guid>(), It.IsAny<GetUsuarioAlunoOptions>())).ReturnsAsync(usuario);
             _usuarioAlunoRepository.Setup(x => x.UpdateUsuarioAluno(It.IsAny<UsuarioAluno>())).Verifiable();
             _repositoryManager.SetupGet(x => x.UsuarioAlunoRepository).Returns(_usuarioAlunoRepository.Object);
             _passwordHash.Setup(x => x.Decrypt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(true);
@@ -245,7 +246,7 @@ namespace UnitTests
 
             Guid usuarioId = Guid.NewGuid();
 
-            _usuarioAlunoRepository.Setup(x => x.GetAlunoAsync(It.IsAny<Guid>())).ReturnsAsync((UsuarioAluno?)null);
+            _usuarioAlunoRepository.Setup(x => x.GetAlunoAsync(It.IsAny<Guid>(), It.IsAny<GetUsuarioAlunoOptions>())).ReturnsAsync((UsuarioAluno?)null);
             _repositoryManager.SetupGet(x => x.UsuarioAlunoRepository).Returns(_usuarioAlunoRepository.Object);
 
             try
@@ -283,7 +284,7 @@ namespace UnitTests
 
             string saltString;
 
-            _usuarioAlunoRepository.Setup(x => x.GetAlunoAsync(It.IsAny<Guid>())).ReturnsAsync(usuario);
+            _usuarioAlunoRepository.Setup(x => x.GetAlunoAsync(It.IsAny<Guid>(), It.IsAny<GetUsuarioAlunoOptions>())).ReturnsAsync(usuario);
             _repositoryManager.SetupGet(x => x.UsuarioAlunoRepository).Returns(_usuarioAlunoRepository.Object);
             _passwordHash.Setup(x => x.Decrypt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(false);
 
@@ -314,7 +315,7 @@ namespace UnitTests
                 Id = Guid.NewGuid()
             };
 
-            _usuarioAlunoRepository.Setup(x => x.GetAlunoAsync(It.IsAny<Guid>())).ReturnsAsync(usuario);
+            _usuarioAlunoRepository.Setup(x => x.GetAlunoAsync(It.IsAny<Guid>(), It.IsAny<GetUsuarioAlunoOptions>())).ReturnsAsync(usuario);
             _repositoryManager.SetupGet(x => x.UsuarioAlunoRepository).Returns(_usuarioAlunoRepository.Object);
 
             UsuarioAlunoDto usuarioDto = await _usuarioAlunoService.ObterUsuarioAluno(usuario.Id);
@@ -327,7 +328,7 @@ namespace UnitTests
         {
             Guid usuarioId = Guid.NewGuid();
 
-            _usuarioAlunoRepository.Setup(x => x.GetAlunoAsync(It.IsAny<Guid>())).ReturnsAsync((UsuarioAluno?)null);
+            _usuarioAlunoRepository.Setup(x => x.GetAlunoAsync(It.IsAny<Guid>(), It.IsAny<GetUsuarioAlunoOptions>())).ReturnsAsync((UsuarioAluno?)null);
             _repositoryManager.SetupGet(x => x.UsuarioAlunoRepository).Returns(_usuarioAlunoRepository.Object);
 
             try
@@ -357,7 +358,7 @@ namespace UnitTests
                 Id = Guid.NewGuid()
             };
 
-            _usuarioAlunoRepository.Setup(x => x.GetAlunoByEmailAsync(It.IsAny<string>())).ReturnsAsync(usuario);
+            _usuarioAlunoRepository.Setup(x => x.GetAlunoByEmailAsync(It.IsAny<string>(), It.IsAny<GetUsuarioAlunoOptions>())).ReturnsAsync(usuario);
             _repositoryManager.SetupGet(x => x.UsuarioAlunoRepository).Returns(_usuarioAlunoRepository.Object);
 
             UsuarioAlunoDto usuarioDto = await _usuarioAlunoService.ObterUsuarioAlunoPorEmail(usuario.Email);
@@ -370,7 +371,7 @@ namespace UnitTests
         {
             string email = "yujiitadoir@gmail.com";
 
-            _usuarioAlunoRepository.Setup(x => x.GetAlunoByEmailAsync(It.IsAny<string>())).ReturnsAsync((UsuarioAluno?)null);
+            _usuarioAlunoRepository.Setup(x => x.GetAlunoByEmailAsync(It.IsAny<string>(), It.IsAny<GetUsuarioAlunoOptions>())).ReturnsAsync((UsuarioAluno?)null);
             _repositoryManager.SetupGet(x => x.UsuarioAlunoRepository).Returns(_usuarioAlunoRepository.Object);
 
             try

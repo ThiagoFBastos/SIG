@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Contracts;
 using Shared.Dtos;
+using Shared.Pagination;
 
 namespace API.Controllers
 {
@@ -53,7 +54,7 @@ namespace API.Controllers
         [HttpGet("by/id/{id}")]
         [Authorize(Roles = "admin,administrativo,aluno")]
         /* Todo: incluir entidade aluno com parâmetro opcional*/
-        public async Task<IActionResult> GetById(Guid id)
+        public async Task<IActionResult> GetById([FromRoute] Guid id, [FromQuery] GetUsuarioAlunoOptions? opcoes = null)
         {
             if(User.IsInRole("aluno"))
             {
@@ -71,14 +72,14 @@ namespace API.Controllers
                     return Unauthorized();
             }
 
-            UsuarioAlunoDto usuario = await _usuarioAlunoService.ObterUsuarioAluno(id);
+            UsuarioAlunoDto usuario = await _usuarioAlunoService.ObterUsuarioAluno(id, opcoes);
             return Ok(usuario);
         }
 
         [HttpGet("by/email/{email}")]
         [Authorize(Roles = "admin,administrativo,aluno")]
         /* Todo: incluir entidade aluno com parâmetro opcional*/
-        public async Task<IActionResult> GetByEmail(string email)
+        public async Task<IActionResult> GetByEmail([FromRoute] string email, [FromQuery] GetUsuarioAlunoOptions? opcoes = null)
         {
             if(User.IsInRole("aluno"))
             {
@@ -92,7 +93,7 @@ namespace API.Controllers
                     return Unauthorized();
             }
 
-            UsuarioAlunoDto usuario = await _usuarioAlunoService.ObterUsuarioAlunoPorEmail(email);
+            UsuarioAlunoDto usuario = await _usuarioAlunoService.ObterUsuarioAlunoPorEmail(email, opcoes);
             return Ok(usuario);
         }
     }

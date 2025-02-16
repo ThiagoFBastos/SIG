@@ -1,4 +1,5 @@
 using Domain.Entities.Users;
+using Shared.Pagination;
 
 namespace Domain.Repositories
 {
@@ -6,7 +7,7 @@ namespace Domain.Repositories
     {
         void AddUsuarioAluno(UsuarioAluno usuarioAluno);
         void UpdateUsuarioAluno(UsuarioAluno usuarioAluno);
-        Task<UsuarioAluno?> GetAlunoAsync(Guid id);
-        Task<UsuarioAluno?> GetAlunoByEmailAsync(string email);
+        Task<UsuarioAluno?> GetAlunoAsync(Guid id, GetUsuarioAlunoOptions? opcoes = null);
+        Task<UsuarioAluno?> GetAlunoByEmailAsync(string email, GetUsuarioAlunoOptions? opcoes = null);
     }
 }
