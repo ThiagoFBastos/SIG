@@ -6,6 +6,7 @@ using Domain.Entities.Users;
 using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
+using Shared.Pagination;
 
 namespace Persistence.Repositories
 {
@@ -19,12 +20,24 @@ namespace Persistence.Repositories
         public void AddUsuarioProfessor(UsuarioProfessor usuarioProfessor) => Add(usuarioProfessor);
         public void UpdateUsuarioProfessor(UsuarioProfessor usuarioProfessor) => Update(usuarioProfessor);
 
-        public Task<UsuarioProfessor?> GetProfessorAsync(Guid id)
-             => FindByCondition(up => up.Id == id)
-                 .FirstOrDefaultAsync();
+        public Task<UsuarioProfessor?> GetProfessorAsync(Guid id, GetUsuarioProfessorOptions? opcoes = null)
+        {
+            var usuario = FindByCondition(up => up.Id == id);
 
-        public Task<UsuarioProfessor?> GetProfessorByEmailAsync(string email)
-            => FindByCondition(up => up.Email == email)
-                .FirstOrDefaultAsync();
+            if (opcoes != null && opcoes.IncluirProfessor)
+                usuario = usuario.Include(up => up.Professor);
+
+            return usuario.FirstOrDefaultAsync();
+        }
+
+        public Task<UsuarioProfessor?> GetProfessorByEmailAsync(string email, GetUsuarioProfessorOptions? opcoes = null)
+        { 
+            var usuario = FindByCondition(up => up.Email == email);
+
+            if (opcoes != null && opcoes.IncluirProfessor)
+                usuario = usuario.Include(up => up.Professor);
+
+            return usuario.FirstOrDefaultAsync();
+        }
     }
 }

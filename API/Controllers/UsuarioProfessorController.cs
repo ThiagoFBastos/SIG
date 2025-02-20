@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Services;
 using Services.Contracts;
 using Shared.Dtos;
+using Shared.Pagination;
 using System.Security.Claims;
 
 namespace API.Controllers
@@ -57,8 +58,7 @@ namespace API.Controllers
 
         [HttpGet("by/id/{id}")]
         [Authorize(Roles = "administrativo,admin,professor")]
-        /* Todo: incluir entidade professor com parâmetro opcional*/
-        public async Task<IActionResult> GetById([FromRoute] Guid id)
+        public async Task<IActionResult> GetById([FromRoute] Guid id, [FromQuery] GetUsuarioProfessorOptions? opcoes = null)
         {
             if(User.IsInRole("professor"))
             {
@@ -76,14 +76,13 @@ namespace API.Controllers
                     return Unauthorized();
             }
 
-            UsuarioProfessorDto usuarioDto = await _usuarioProfessorService.ObterUsuarioProfessor(id);
+            UsuarioProfessorDto usuarioDto = await _usuarioProfessorService.ObterUsuarioProfessor(id, opcoes);
             return Ok(usuarioDto);
         }
 
         [HttpGet("by/email/{email}")]
         [Authorize(Roles = "administrativo,admin,professor")]
-        /* Todo: incluir entidade professor com parâmetro opcional*/
-        public async Task<IActionResult> GetByEmail([FromRoute] string email)
+        public async Task<IActionResult> GetByEmail([FromRoute] string email, [FromQuery] GetUsuarioProfessorOptions? opcoes)
         {
             if (User.IsInRole("professor"))
             {
@@ -96,7 +95,7 @@ namespace API.Controllers
                     return Unauthorized();
             }
 
-            UsuarioProfessorDto usuarioDto = await _usuarioProfessorService.ObterUsuarioProfessorPorEmail(email);
+            UsuarioProfessorDto usuarioDto = await _usuarioProfessorService.ObterUsuarioProfessorPorEmail(email, opcoes);
             return Ok(usuarioDto);
         }
     }

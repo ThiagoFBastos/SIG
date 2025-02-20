@@ -5,6 +5,7 @@ using Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using Services.Contracts;
 using Shared.Dtos;
+using Shared.Pagination;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -104,9 +105,9 @@ namespace Services
             await _repositoryManaher.SaveAsync();
         }
 
-        public async Task<UsuarioProfessorDto> ObterUsuarioProfessor(Guid id)
+        public async Task<UsuarioProfessorDto> ObterUsuarioProfessor(Guid id, GetUsuarioProfessorOptions? opcoes = null)
         {
-            UsuarioProfessor? usuario = await _repositoryManaher.UsuarioProfessorRepository.GetProfessorAsync(id);
+            UsuarioProfessor? usuario = await _repositoryManaher.UsuarioProfessorRepository.GetProfessorAsync(id, opcoes);
 
             if (usuario is null)
             {
@@ -119,9 +120,9 @@ namespace Services
             return usuarioDto;
         }
 
-        public async Task<UsuarioProfessorDto> ObterUsuarioProfessorPorEmail(string email)
+        public async Task<UsuarioProfessorDto> ObterUsuarioProfessorPorEmail(string email, GetUsuarioProfessorOptions? opcoes = null)
         {
-            UsuarioProfessor? usuario = await _repositoryManaher.UsuarioProfessorRepository.GetProfessorByEmailAsync(email);
+            UsuarioProfessor? usuario = await _repositoryManaher.UsuarioProfessorRepository.GetProfessorByEmailAsync(email, opcoes);
 
             if (usuario is null)
             {
