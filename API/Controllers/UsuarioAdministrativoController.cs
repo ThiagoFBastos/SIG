@@ -57,6 +57,22 @@ namespace API.Controllers
         [Authorize(Roles = "administrativo,admin")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
+            if(User.IsInRole("administrativo"))
+            {
+                string? idClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+
+                if (idClaim == null)
+                    throw new BadRequestException("token inválido");
+
+                Guid reqId;
+
+                if (!Guid.TryParse(idClaim, out reqId))
+                    throw new BadRequestException("token inválido");
+
+                if (id != reqId)
+                    return Unauthorized();
+            }
+
             UsuarioAdministrativoDto usuarioDto = await _usuarioAdministrativoService.ObterUsuarioAdministrativo(id);
             return Ok(usuarioDto);
         }
@@ -65,6 +81,17 @@ namespace API.Controllers
         [Authorize(Roles = "administrativo,admin")]
         public async Task<IActionResult> GetByEmail([FromRoute] string email)
         {
+            if(User.IsInRole("administrativo"))
+            {
+                string? emailClaim = User.Claims.FirstOrDefault(c => c.Type == "Email")?.Value;
+
+                if (emailClaim == null)
+                    throw new BadRequestException("token inválido");
+
+                if(email != emailClaim)
+                    return Unauthorized();
+            }
+
             UsuarioAdministrativoDto usuarioDto = await _usuarioAdministrativoService.ObterUsuarioAdministrativoPorEmail(email);
             return Ok(usuarioDto);
         }
