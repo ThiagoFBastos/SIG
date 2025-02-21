@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Exceptions;
 using System.Security.Claims;
+using Shared.Pagination;
 
 namespace Services
 {
@@ -103,9 +104,9 @@ namespace Services
             await _repositoryManaher.SaveAsync();
         }
 
-        public async Task<UsuarioAdministrativoDto> ObterUsuarioAdministrativo(Guid id)
+        public async Task<UsuarioAdministrativoDto> ObterUsuarioAdministrativo(Guid id, GetUsuarioAdministrativoOptions? opcoes = null)
         {
-            UsuarioAdministrativo? usuario = await _repositoryManaher.UsuarioAdministrativoRepository.GetAdministrativoAsync(id);
+            UsuarioAdministrativo? usuario = await _repositoryManaher.UsuarioAdministrativoRepository.GetAdministrativoAsync(id, opcoes);
 
             if(usuario is null)
             {
@@ -118,9 +119,9 @@ namespace Services
             return usuarioDto;
         }
 
-       public async Task<UsuarioAdministrativoDto> ObterUsuarioAdministrativoPorEmail(string email)
+       public async Task<UsuarioAdministrativoDto> ObterUsuarioAdministrativoPorEmail(string email, GetUsuarioAdministrativoOptions? opcoes = null)
         {
-            UsuarioAdministrativo? usuario = await _repositoryManaher.UsuarioAdministrativoRepository.GetAdminstrativoByEmailAsync(email);
+            UsuarioAdministrativo? usuario = await _repositoryManaher.UsuarioAdministrativoRepository.GetAdminstrativoByEmailAsync(email, opcoes);
 
             if (usuario is null)
             {

@@ -5,6 +5,7 @@ using Services.Contracts;
 using Shared.Dtos;
 using Domain.Entities.Users;
 using Microsoft.AspNetCore.Authorization;
+using Shared.Pagination;
 
 namespace API.Controllers
 {
@@ -55,7 +56,7 @@ namespace API.Controllers
 
         [HttpGet("by/id/{id}")]
         [Authorize(Roles = "administrativo,admin")]
-        public async Task<IActionResult> GetById([FromRoute] Guid id)
+        public async Task<IActionResult> GetById([FromRoute] Guid id, [FromQuery] GetUsuarioAdministrativoOptions? opcoes = null)
         {
             if(User.IsInRole("administrativo"))
             {
@@ -73,13 +74,13 @@ namespace API.Controllers
                     return Unauthorized();
             }
 
-            UsuarioAdministrativoDto usuarioDto = await _usuarioAdministrativoService.ObterUsuarioAdministrativo(id);
+            UsuarioAdministrativoDto usuarioDto = await _usuarioAdministrativoService.ObterUsuarioAdministrativo(id, opcoes);
             return Ok(usuarioDto);
         }
 
         [HttpGet("by/email/{email}")]
         [Authorize(Roles = "administrativo,admin")]
-        public async Task<IActionResult> GetByEmail([FromRoute] string email)
+        public async Task<IActionResult> GetByEmail([FromRoute] string email, [FromQuery] GetUsuarioAdministrativoOptions? opcoes = null)
         {
             if(User.IsInRole("administrativo"))
             {
@@ -92,7 +93,7 @@ namespace API.Controllers
                     return Unauthorized();
             }
 
-            UsuarioAdministrativoDto usuarioDto = await _usuarioAdministrativoService.ObterUsuarioAdministrativoPorEmail(email);
+            UsuarioAdministrativoDto usuarioDto = await _usuarioAdministrativoService.ObterUsuarioAdministrativoPorEmail(email, opcoes);
             return Ok(usuarioDto);
         }
     }

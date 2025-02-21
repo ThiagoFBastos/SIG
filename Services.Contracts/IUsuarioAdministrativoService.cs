@@ -1,4 +1,5 @@
 using Shared.Dtos;
+using Shared.Pagination;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,8 +14,8 @@ namespace Services.Contracts
 
         Task AlteraSenhaUsuarioAdministrativo(Guid id, ChangeUsuarioPasswordDto changePasswordDto);
 
-        Task<UsuarioAdministrativoDto> ObterUsuarioAdministrativo(Guid id);
+        Task<UsuarioAdministrativoDto> ObterUsuarioAdministrativo(Guid id, GetUsuarioAdministrativoOptions? opcoes = null);
 
-        Task<UsuarioAdministrativoDto> ObterUsuarioAdministrativoPorEmail(string email);
+        Task<UsuarioAdministrativoDto> ObterUsuarioAdministrativoPorEmail(string email, GetUsuarioAdministrativoOptions? opcoes = null);
     }
 }

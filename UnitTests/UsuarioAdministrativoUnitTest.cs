@@ -16,6 +16,7 @@ using Persistence.Repositories;
 using Domain.Exceptions;
 using Domain.Entities.Abstract;
 using System.Reflection.Metadata;
+using Shared.Pagination;
 
 namespace UnitTests
 {
@@ -56,7 +57,7 @@ namespace UnitTests
             };
             string saltString;
 
-            _usuarioAdministrativoRepository.Setup(y => y.GetAdminstrativoByEmailAsync(It.IsAny<string>())).ReturnsAsync((UsuarioAdministrativo?)null);
+            _usuarioAdministrativoRepository.Setup(y => y.GetAdminstrativoByEmailAsync(It.IsAny<string>(), It.IsAny<GetUsuarioAdministrativoOptions>())).ReturnsAsync((UsuarioAdministrativo?)null);
             _usuarioAdministrativoRepository.Setup(y => y.AddUsuarioAdministrativo(It.IsAny<UsuarioAdministrativo>())).Verifiable();
             _passwordHash.Setup(x => x.Encrypt(It.IsAny<string>(), out saltString)).Returns("Sukuna");
             _repositoryManager.SetupGet(y => y.UsuarioAdministrativoRepository).Returns(_usuarioAdministrativoRepository.Object);
@@ -87,7 +88,7 @@ namespace UnitTests
                 Password = "Seis olhos"
             };
 
-            _usuarioAdministrativoRepository.Setup(y => y.GetAdminstrativoByEmailAsync(It.IsAny<string>())).ReturnsAsync(usuario);
+            _usuarioAdministrativoRepository.Setup(y => y.GetAdminstrativoByEmailAsync(It.IsAny<string>(), It.IsAny<GetUsuarioAdministrativoOptions>())).ReturnsAsync(usuario);
             _repositoryManager.SetupGet(y => y.UsuarioAdministrativoRepository).Returns(_usuarioAdministrativoRepository.Object);
 
             try
@@ -125,7 +126,7 @@ namespace UnitTests
 
             Guid id = Guid.NewGuid();
             
-            _usuarioAdministrativoRepository.Setup(y => y.GetAdministrativoAsync(It.IsAny<Guid>())).ReturnsAsync(usuario);
+            _usuarioAdministrativoRepository.Setup(y => y.GetAdministrativoAsync(It.IsAny<Guid>(), It.IsAny<GetUsuarioAdministrativoOptions>())).ReturnsAsync(usuario);
             _usuarioAdministrativoRepository.Setup(y => y.UpdateUsuarioAdministrativo(It.IsAny<UsuarioAdministrativo>())).Verifiable();
             _repositoryManager.SetupGet(y => y.UsuarioAdministrativoRepository).Returns(_usuarioAdministrativoRepository.Object);
             _passwordHash.Setup(y => y.Decrypt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(true);
@@ -148,7 +149,7 @@ namespace UnitTests
 
             Guid id = Guid.NewGuid();
 
-            _usuarioAdministrativoRepository.Setup(y => y.GetAdministrativoAsync(It.IsAny<Guid>())).ReturnsAsync((UsuarioAdministrativo?)null);
+            _usuarioAdministrativoRepository.Setup(y => y.GetAdministrativoAsync(It.IsAny<Guid>(), It.IsAny<GetUsuarioAdministrativoOptions>())).ReturnsAsync((UsuarioAdministrativo?)null);
             _repositoryManager.SetupGet(y => y.UsuarioAdministrativoRepository).Returns(_usuarioAdministrativoRepository.Object);
 
             try
@@ -186,7 +187,7 @@ namespace UnitTests
 
             Guid id = Guid.NewGuid();
 
-            _usuarioAdministrativoRepository.Setup(y => y.GetAdministrativoAsync(It.IsAny<Guid>())).ReturnsAsync(usuario);
+            _usuarioAdministrativoRepository.Setup(y => y.GetAdministrativoAsync(It.IsAny<Guid>(), It.IsAny<GetUsuarioAdministrativoOptions>())).ReturnsAsync(usuario);
             _repositoryManager.SetupGet(y => y.UsuarioAdministrativoRepository).Returns(_usuarioAdministrativoRepository.Object);
             _passwordHash.Setup(y => y.Decrypt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(false);
 
@@ -219,7 +220,7 @@ namespace UnitTests
 
             Guid id = Guid.NewGuid();
 
-            _usuarioAdministrativoRepository.Setup(x => x.GetAdministrativoAsync(It.IsAny<Guid>())).ReturnsAsync(usuario);
+            _usuarioAdministrativoRepository.Setup(x => x.GetAdministrativoAsync(It.IsAny<Guid>(), It.IsAny<GetUsuarioAdministrativoOptions>())).ReturnsAsync(usuario);
             _repositoryManager.SetupGet(y => y.UsuarioAdministrativoRepository).Returns(_usuarioAdministrativoRepository.Object);
 
             UsuarioAdministrativoDto usuarioDto = await _usuarioAdministrativoService.ObterUsuarioAdministrativo(id);
@@ -231,7 +232,7 @@ namespace UnitTests
         public async Task Test_GetById_UsuarioAdministrativo_Shouldnt_Work_Id_Not_Exist()
         {
             Guid id = Guid.NewGuid();
-            _usuarioAdministrativoRepository.Setup(x => x.GetAdministrativoAsync(It.IsAny<Guid>())).ReturnsAsync((UsuarioAdministrativo?)null);
+            _usuarioAdministrativoRepository.Setup(x => x.GetAdministrativoAsync(It.IsAny<Guid>(), It.IsAny<GetUsuarioAdministrativoOptions>())).ReturnsAsync((UsuarioAdministrativo?)null);
             _repositoryManager.SetupGet(y => y.UsuarioAdministrativoRepository).Returns(_usuarioAdministrativoRepository.Object);
 
             try
@@ -263,7 +264,7 @@ namespace UnitTests
 
             string email = "gojo@gmail.com";
 
-            _usuarioAdministrativoRepository.Setup(x => x.GetAdminstrativoByEmailAsync(It.IsAny<string>())).ReturnsAsync(usuario);
+            _usuarioAdministrativoRepository.Setup(x => x.GetAdminstrativoByEmailAsync(It.IsAny<string>(), It.IsAny<GetUsuarioAdministrativoOptions>())).ReturnsAsync(usuario);
             _repositoryManager.SetupGet(y => y.UsuarioAdministrativoRepository).Returns(_usuarioAdministrativoRepository.Object);
 
             UsuarioAdministrativoDto usuarioDto = await _usuarioAdministrativoService.ObterUsuarioAdministrativoPorEmail(email);
@@ -275,7 +276,7 @@ namespace UnitTests
         public async Task Test_GetByEmail_UsuarioAdministrativo_Shouldnt_Work_Email_not_Exist()
         {
             string email = "gojo@gmail.com";
-            _usuarioAdministrativoRepository.Setup(x => x.GetAdminstrativoByEmailAsync(It.IsAny<string>())).ReturnsAsync((UsuarioAdministrativo?)null);
+            _usuarioAdministrativoRepository.Setup(x => x.GetAdminstrativoByEmailAsync(It.IsAny<string>(), It.IsAny<GetUsuarioAdministrativoOptions>())).ReturnsAsync((UsuarioAdministrativo?)null);
             _repositoryManager.SetupGet(y => y.UsuarioAdministrativoRepository).Returns(_usuarioAdministrativoRepository.Object);
 
             try
@@ -294,7 +295,7 @@ namespace UnitTests
         }
 
         [Fact]
-        public async Task Test_If_AdministrativoForCreateDto_Mapper_Is_Working()
+        public  void Test_If_AdministrativoForCreateDto_Mapper_Is_Working()
         {
             UsuarioAdministrativoForCreateDto usuarioAdministrativoForCreate = new UsuarioAdministrativoForCreateDto
             {
