@@ -63,19 +63,50 @@ namespace API.Controllers
 
         [HttpGet("find/{alunoMatricula}/from/{codigoTurma}")]
         [Authorize(Roles = "admin,administrativo,professor,aluno")]
-        /* Todo: quando for aluno, tentar ver se são suas próprias informações */
         public async Task<IActionResult> Get([FromRoute] Guid alunoMatricula, [FromRoute] Guid codigoTurma, [FromQuery] GetAlunoTurmaOptions? opcoes = null)
         {
+            if(User.IsInRole("aluno"))
+            {
+                string? alunoMatriculaClaim = User.Claims.FirstOrDefault(c => c.Type == "AlunoMatricula")?.Value;
+
+                if (alunoMatriculaClaim == null)
+                    throw new BadHttpRequestException("token inválido");
+
+                Guid reqId;
+
+                if (!Guid.TryParse(alunoMatriculaClaim, out reqId))
+                    throw new BadHttpRequestException("token inválido");
+
+                if (alunoMatricula != reqId)
+                    return Unauthorized();
+            }
+
             AlunoTurmaDto aluno = await _alunoTurmaService.ObterAlunoDaTurma(alunoMatricula, codigoTurma, opcoes);
             return Ok(aluno);
         }
 
         [HttpGet("find/{codigoAlunoTurma}")]
         [Authorize(Roles = "admin,administrativo,professor,aluno")]
-        /* Todo: quando for aluno, tentar ver se são suas próprias informações */
         public async Task<IActionResult> Get([FromRoute] Guid codigoAlunoTurma, [FromQuery] GetAlunoTurmaOptions? opcoes = null)
         {
             AlunoTurmaDto aluno = await _alunoTurmaService.ObterAlunoDatTurmaPorCodigo(codigoAlunoTurma, opcoes);
+
+            if(User.IsInRole("aluno"))
+            {
+                string? alunoMatriculaClaim = User.Claims.FirstOrDefault(c => c.Type == "AlunoMatricula")?.Value;
+
+                if (alunoMatriculaClaim == null)
+                    throw new BadHttpRequestException("token inválido");
+
+                Guid reqId;
+
+                if (!Guid.TryParse(alunoMatriculaClaim, out reqId))
+                    throw new BadHttpRequestException("token inválido");
+
+                if (aluno.AlunoMatricula != reqId)
+                    return Unauthorized();
+            }
+
             return Ok(aluno);
         }
     }
