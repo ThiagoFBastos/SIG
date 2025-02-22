@@ -52,6 +52,7 @@ namespace Services
             {
                 new Claim("Id", usuario.Id.ToString()),
                 new Claim("Email", usuario.Email),
+                new Claim("ProfessorMatricula", usuario.ProfessorMatricula.ToString()),
                 new Claim(ClaimTypes.Role, "professor")
             };
 
