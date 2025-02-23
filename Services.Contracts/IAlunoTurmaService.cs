@@ -8,10 +8,8 @@ using Shared.Pagination;
 namespace Services.Contracts
 {
     public interface IAlunoTurmaService
-    { 
+    {
         Task<Guid> CadastrarAlunoNaTurma(AlunoTurmaForCreateDto alunoTurma);
-
-        Task<AlunoTurmaDto> AlterarAlunoNaTurma(Guid matriculaAluno, Guid codigoTurma, AlunoTurmaForUpdateDto alunoTurma);
 
         Task<AlunoTurmaDto> AlterarTurma(Guid matriculaAluno, Guid codigoTurma, AlunoTurmaChangeTurmaDto changeTurma);
 
