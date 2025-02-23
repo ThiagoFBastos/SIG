@@ -11,5 +11,8 @@ namespace Shared.Pagination
     {
         [JsonPropertyName("incluir_administrativo")]
         public required bool IncluirAdministrativo { get; set; }
+
+        [JsonPropertyName("incluir_endereco")]
+        public required bool IncluirEndereco { get; set; }
     }
 }
