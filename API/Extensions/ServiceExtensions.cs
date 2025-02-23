@@ -113,7 +113,7 @@ namespace API.Extensions
             services.AddValidatorsFromAssemblyContaining<GetAlunosOptionsValidator>();
             services.AddValidatorsFromAssemblyContaining<LoginUsuarioValidator>();
             services.AddValidatorsFromAssemblyContaining<UsuarioAdminForCreateValidator>();
-            services.AddValidatorsFromAssemblyContaining<ChangePassowrValidator>(); // Todo: consertar nome do validator
+            services.AddValidatorsFromAssemblyContaining<ChangePasswordValidator>();
             services.AddValidatorsFromAssemblyContaining<AlunoTurmaChangeNotaValidator>();
         }
         public static void ConfigureSwagger(this IServiceCollection services)
