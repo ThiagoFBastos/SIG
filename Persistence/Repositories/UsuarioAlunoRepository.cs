@@ -24,7 +24,13 @@ namespace Persistence.Repositories
             var usuario = FindByCondition(ua => ua.Id == id);
 
             if (opcoes != null && opcoes.IncluirAluno)
-                usuario = usuario.Include(ua => ua.Aluno);
+            {
+                if (opcoes.IncluirEndereco)
+                    usuario = usuario.Include(ua => ua.Aluno)
+                                .ThenInclude(a => a.Endereco);
+                else
+                    usuario = usuario.Include(ua => ua.Aluno);
+            }
 
             return usuario.FirstOrDefaultAsync();
         }
@@ -34,7 +40,13 @@ namespace Persistence.Repositories
             var usuario = FindByCondition(ua => ua.Email == email);
 
             if (opcoes != null && opcoes.IncluirAluno)
-                usuario = usuario.Include(ua => ua.Aluno);
+            {
+                if (opcoes.IncluirEndereco)
+                    usuario = usuario.Include(ua => ua.Aluno)
+                                .ThenInclude(a => a.Endereco);
+                else
+                    usuario = usuario.Include(ua => ua.Aluno);
+            }
 
             return usuario.FirstOrDefaultAsync();
         }
