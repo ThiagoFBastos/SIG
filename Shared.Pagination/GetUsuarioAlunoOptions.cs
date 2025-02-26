@@ -4,15 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Shared.Pagination
 {
     public class GetUsuarioAlunoOptions
     {
-        [JsonPropertyName("incluir_aluno")]
+        [FromQuery(Name = "incluir_aluno")]
         public required bool IncluirAluno { get; set; }
 
-        [JsonPropertyName("incluir_endereco")]
+        [FromQuery(Name = "incluir_endereco")]
         public required bool IncluirEndereco { get; set; }
     }
 }
