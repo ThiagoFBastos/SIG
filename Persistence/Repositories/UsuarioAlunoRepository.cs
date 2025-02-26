@@ -26,10 +26,24 @@ namespace Persistence.Repositories
             if (opcoes != null && opcoes.IncluirAluno)
             {
                 if (opcoes.IncluirEndereco)
-                    usuario = usuario.Include(ua => ua.Aluno)
-                                .ThenInclude(a => a.Endereco);
+                {
+                    if (opcoes.IncluirTurma)
+                        usuario = usuario.Include(ua => ua.Aluno)
+                                            .ThenInclude(a => a.Endereco)
+                                         .Include(ua => ua.Aluno)
+                                            .ThenInclude(a => a.Turmas);
+                    else
+                        usuario = usuario.Include(ua => ua.Aluno)
+                                            .ThenInclude(a => a.Endereco);
+                }
                 else
-                    usuario = usuario.Include(ua => ua.Aluno);
+                {
+                    if (opcoes.IncluirTurma)
+                        usuario = usuario.Include(ua => ua.Aluno)
+                                            .ThenInclude(a => a.Turmas);
+                    else
+                        usuario = usuario.Include(ua => ua.Aluno);
+                }
             }
 
             return usuario.FirstOrDefaultAsync();
@@ -42,10 +56,24 @@ namespace Persistence.Repositories
             if (opcoes != null && opcoes.IncluirAluno)
             {
                 if (opcoes.IncluirEndereco)
-                    usuario = usuario.Include(ua => ua.Aluno)
-                                .ThenInclude(a => a.Endereco);
+                {
+                    if (opcoes.IncluirTurma)
+                        usuario = usuario.Include(ua => ua.Aluno)
+                                            .ThenInclude(a => a.Endereco)
+                                         .Include(ua => ua.Aluno)
+                                            .ThenInclude(a => a.Turmas);
+                    else
+                        usuario = usuario.Include(ua => ua.Aluno)
+                                            .ThenInclude(a => a.Endereco);
+                }
                 else
-                    usuario = usuario.Include(ua => ua.Aluno);
+                {
+                    if (opcoes.IncluirTurma)
+                        usuario = usuario.Include(ua => ua.Aluno)
+                                            .ThenInclude(a => a.Turmas);
+                    else
+                        usuario = usuario.Include(ua => ua.Aluno);
+                }
             }
 
             return usuario.FirstOrDefaultAsync();

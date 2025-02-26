@@ -15,5 +15,8 @@ namespace Shared.Pagination
 
         [FromQuery(Name = "incluir_endereco")]
         public required bool IncluirEndereco { get; set; }
+
+        [FromQuery(Name = "incluir_turma")]
+        public required bool IncluirTurma {  get; set; }
     }
 }
