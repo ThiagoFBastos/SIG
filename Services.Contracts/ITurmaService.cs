@@ -17,6 +17,8 @@ namespace Services.Contracts
 
         Task<TurmaDto> ObterTurmaPorCodigo(Guid codigoTurma, GetTurmaOptions? opcoes = null);
 
+        Task<TurmaSemNotaDto> ObterTurmaPorCodigoSemNota(Guid codigoTurma, GetTurmaOptions? opcoes = null);
+
         Task<Pagination<TurmaDto>> ObterTurmas(GetTurmasOptions opcoes);
     }
 }
