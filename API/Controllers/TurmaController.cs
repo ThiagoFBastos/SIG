@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Domain.Exceptions;
@@ -16,10 +17,11 @@ namespace API.Controllers
     public class TurmaController : ControllerBase
     {
         private readonly ITurmaService _turmaService;
-
-        public TurmaController(ITurmaService turmaService)
+        private readonly ILogger<TurmaController> _logger;
+        public TurmaController(ITurmaService turmaService, ILogger<TurmaController> logger)
         { 
             _turmaService = turmaService;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -55,11 +57,19 @@ namespace API.Controllers
         }
 
         [HttpGet("{codigo}")]
-        [Authorize(Roles = "admin,administrativo,professor,aluno")]
-        /* Todo: esconder dados sensíveis dos alunos ao incluir todos os alunos: como nota quando for um aluno requisitando*/
+        [Authorize(Roles = "admin,administrativo,professor")]
         public async Task<IActionResult> Get([FromRoute] Guid codigo, [FromQuery] GetTurmaOptions? opcoes = null)
         {
             TurmaDto turma = await _turmaService.ObterTurmaPorCodigo(codigo, opcoes);
+ 
+            return Ok(turma);
+        }
+
+        [HttpGet("sensitive/{codigo}")]
+        [Authorize(Roles = "aluno")]
+        public async Task<IActionResult> GetWithoutGrade([FromRoute] Guid codigo, [FromQuery] GetTurmaOptions? opcoes = null)
+        {
+            TurmaSemNotaDto turma = await _turmaService.ObterTurmaPorCodigoSemNota(codigo, opcoes);
 
             return Ok(turma);
         }

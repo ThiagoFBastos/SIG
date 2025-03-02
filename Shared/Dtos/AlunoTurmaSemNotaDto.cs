@@ -22,9 +22,6 @@ namespace Shared.Dtos
         [JsonPropertyName("codigo_turma")]
         public required Guid TurmaCodigo { get; set; }
 
-        [JsonPropertyName("turma")]
-        public TurmaDto? Turma { get; set; }
-
         public virtual bool Match(AlunoTurma alunoTurma)
         {
             return Codigo == alunoTurma.Codigo && AlunoMatricula == alunoTurma.AlunoMatricula &&

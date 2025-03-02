@@ -12,6 +12,9 @@ namespace Shared.Dtos
         [JsonPropertyName("nota")]
         public required double Nota { get; set; }
 
+        [JsonPropertyName("turma")]
+        public TurmaDto? Turma { get; set; }
+        
         public override bool Match(AlunoTurma alunoTurma)
         {
             return base.Match(alunoTurma) && Nota == alunoTurma.Nota;
