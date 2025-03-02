@@ -38,6 +38,8 @@ namespace Services.Mappers
                  .ForMember(at => at.Aluno, opt => opt.Ignore())
                  .ForMember(at => at.Codigo, opt => opt.Ignore())
                  .ForMember(at => at.Nota, opt => opt.Ignore());
+
+            CreateMap<AlunoTurma, AlunoTurmaSemNotaDto>();
         }
     }
 }
