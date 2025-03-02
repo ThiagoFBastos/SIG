@@ -372,7 +372,32 @@ namespace UnitTests
 
             Assert.True(turmaDto.Match(turma));
         }
-        
+
+        [Fact]
+        public async Task Test_Get_Turma_Shouldnt_Work_Turma_Not_Found()
+        {
+            Guid codigoTurma = Guid.NewGuid();
+            Mock<ITurmaRepository> turmaRepository = new Mock<ITurmaRepository>();
+
+            turmaRepository.Setup(x => x.GetTurmaAsync(It.IsAny<Guid>(), It.IsAny<GetTurmaOptions>())).ReturnsAsync((Turma?)null);
+
+            _repositoryManager.Setup(x => x.TurmaRepository).Returns(turmaRepository.Object);
+
+            try
+            {
+                _ = await _turmaService.ObterTurmaPorCodigo(codigoTurma);
+                Assert.Fail();
+            }
+            catch(NotFoundException ex)
+            {
+                Assert.Equal($"A turma com código: {codigoTurma} não foi encontrado", ex.Message);
+            }
+            catch
+            {
+                Assert.Fail();
+            }
+        }
+
         [Fact]
         public async Task Test_Filter_Turmas_Must_Work()
         {
