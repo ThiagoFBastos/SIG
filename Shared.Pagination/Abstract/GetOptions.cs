@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Shared.Pagination.Abstract
 {
@@ -10,10 +11,10 @@ namespace Shared.Pagination.Abstract
     {
         private int limiteDeResultados = 10;
 
-        [JsonPropertyName("comeco")]
+        [FromQuery(Name = "comeco")]
         public int ComecarApartirDe { get; init; } = 0;
 
-        [JsonPropertyName("limite")]
+        [FromQuery(Name = "limite")]
         public int LimiteDeResultados 
         { 
             get => limiteDeResultados;
@@ -23,10 +24,10 @@ namespace Shared.Pagination.Abstract
             }
         }
 
-        [JsonPropertyName("ordenacao")]
+        [FromQuery(Name = "ordenacao")]
         public string? Ordenacao { get; init; }
 
-        [JsonPropertyName("crescente")]
+        [FromQuery(Name = "crescente")]
         public bool Crescente { get; init; } = true;
     }
 }

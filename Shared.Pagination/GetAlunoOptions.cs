@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Shared.Pagination
 {
     public record class GetAlunoOptions
     {
-        [JsonPropertyName("incluir_turmas")]
+        [FromQuery(Name = "incluir_turmas")]
         public bool IncluirTurmas { get; init; } = false;
 
-        [JsonPropertyName("incluir_media")]
+        [FromQuery(Name = "incluir_media")]
         public bool IncluirMedia { get; init; } = false;
 
-        [JsonPropertyName("incluir_endereco")]
+        [FromQuery(Name = "incluir_endereco")]
         public bool IncluirEndereco { get; init; } = false;
     }
 }
