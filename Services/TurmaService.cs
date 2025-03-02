@@ -131,5 +131,18 @@ namespace Services
              
             return paginacao;
         }
+
+        public async Task<Pagination<TurmaSemNotaDto>> ObterTurmasSemNota(GetTurmasOptions opcoes)
+        {
+            List<Turma> turmas = await _repositoryManager.TurmaRepository.GetTurmasAsync(opcoes);
+
+            Pagination<TurmaSemNotaDto> paginacao = new Pagination<TurmaSemNotaDto>()
+            {
+                Items = _mapper.Map<List<TurmaSemNotaDto>>(turmas),
+                CurrentPage = opcoes.ComecarApartirDe
+            };
+
+            return paginacao;
+        }
     }
 }

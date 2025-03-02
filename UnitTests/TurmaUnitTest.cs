@@ -488,5 +488,45 @@ namespace UnitTests
             for(int i = 0; i < pagination.Items.Count; ++i)
                 Assert.True(pagination.Items[i].Match(turmas[i]));
         }
+
+        [Fact]
+        public async Task Test_Filter_TurmasSemNota_Must_Work()
+        {
+            Mock<ITurmaRepository> turmaRepository = new Mock<ITurmaRepository>();
+
+            List<Turma> turmas = new List<Turma>
+            {
+                new Turma
+                {
+                    Codigo = Guid.NewGuid(),
+                    ProfessorMatricula = Guid.NewGuid(),
+                    Disciplina = "Matemática",
+                    AnoEscolar = Periodo.EF_9,
+                    DataInicio = new DateTime(2024, 3, 1),
+                    DataFim = new DateTime(2024, 12, 31),
+                    HorarioAulaInicio = new DateTime(1, 1, 1, 8, 0, 0),
+                    HorarioAulaFim = new DateTime(1, 1, 1, 18, 0, 0),
+                },
+                new Turma
+                {
+                    Codigo = Guid.NewGuid(),
+                    ProfessorMatricula = Guid.NewGuid(),
+                    Disciplina = "Portugûes",
+                    AnoEscolar = Periodo.EF_9,
+                    DataInicio = new DateTime(2024, 3, 1),
+                    DataFim = new DateTime(2024, 12, 31),
+                    HorarioAulaInicio = new DateTime(1, 1, 1, 8, 0, 0),
+                    HorarioAulaFim = new DateTime(1, 1, 1, 18, 0, 0),
+                }
+            };
+
+            turmaRepository.Setup(x => x.GetTurmasAsync(It.IsAny<GetTurmasOptions>())).ReturnsAsync(turmas);
+            _repositoryManager.SetupGet(x => x.TurmaRepository).Returns(turmaRepository.Object);
+
+            Pagination<TurmaSemNotaDto> pagination = await _turmaService.ObterTurmasSemNota(new GetTurmasOptions() { });
+
+            for (int i = 0; i < pagination.Items.Count; ++i)
+                Assert.True(pagination.Items[i].Match(turmas[i]));
+        }
     }
 }
