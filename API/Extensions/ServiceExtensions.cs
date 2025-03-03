@@ -161,6 +161,6 @@ namespace API.Extensions
         }
 
         public static void ConfigureJsonOptions(this IServiceCollection services)
-            => services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
+            => services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
     }
 }
