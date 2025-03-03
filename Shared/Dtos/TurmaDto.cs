@@ -10,6 +10,9 @@ namespace Shared.Dtos
 {
     public record class TurmaDto: TurmaSemAlunoTurmaDto
     {
+        [JsonPropertyName("professor")]
+        public ProfessorDto? Professor { get; set; }
+
         [JsonPropertyName("alunos")]
         public List<AlunoTurmaDto>? Alunos { get; set; }
     }

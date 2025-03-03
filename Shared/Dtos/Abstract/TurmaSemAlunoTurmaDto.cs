@@ -16,9 +16,6 @@ namespace Shared.Dtos.Abstract
         [JsonPropertyName("matricula_professor")]
         public required Guid ProfessorMatricula { get; set; }
 
-        [JsonPropertyName("professor")]
-        public ProfessorDto? Professor { get; set; }
-
         [JsonPropertyName("disciplina")]
         public required string Disciplina { get; set; }
 

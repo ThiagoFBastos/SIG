@@ -75,8 +75,7 @@ namespace API.Controllers
         }
 
         [HttpGet("filter")]
-        [Authorize(Roles = "admin,administrativo,professor,aluno")]
-        /* Todo: esconder dados sensíveis dos alunos ao incluir todos os alunos*/
+        [Authorize(Roles = "admin,administrativo,professor")]
         public async Task<IActionResult> Filter([FromQuery] GetTurmasOptions opcoes)
         {
             if(!ModelState.IsValid)
@@ -85,6 +84,21 @@ namespace API.Controllers
             Pagination<TurmaDto> pagination = await _turmaService.ObterTurmas(opcoes);
 
             if(!pagination.Items.Any())
+                return NoContent();
+
+            return Ok(pagination);
+        }
+
+        [HttpGet("sensitive/filter")]
+        [Authorize(Roles = "aluno")]
+        public async Task<IActionResult> FilterWithoutGrade([FromQuery] GetTurmasOptions opcoes)
+        {
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(opcoes);
+
+            Pagination<TurmaSemNotaDto> pagination = await _turmaService.ObterTurmasSemNota(opcoes);
+
+            if (!pagination.Items.Any())
                 return NoContent();
 
             return Ok(pagination);
