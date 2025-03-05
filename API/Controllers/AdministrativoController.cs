@@ -146,6 +146,7 @@ namespace API.Controllers
         [HttpPut("{matricula}")]
         [ProducesResponseType(typeof(AdministrativoDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Update(Guid matricula, AdministrativoForUpdateDto administrativo)
         {
             if(!ModelState.IsValid)
