@@ -179,6 +179,7 @@ namespace API.Controllers
         [HttpGet("filter")]
         [ProducesResponseType(typeof(Pagination<AdministrativoDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Filter([FromQuery] GetAdministrativosOptions opcoes)
         {
             if(!ModelState.IsValid)
