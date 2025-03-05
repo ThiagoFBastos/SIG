@@ -25,7 +25,7 @@ namespace API.Controllers
         /// <summary>
         /// Construtor do AdministrativoController
         /// </summary>
-        /// <param name="administrativoService">O serviço responsável pelos casos de uso do administrativos</param>
+        /// <param name="administrativoService">O serviço responsável pelos casos de uso dos administrativos</param>
         public AdministrativoController(IAdministrativoService administrativoService)
         {
             _administrativoService = administrativoService;
