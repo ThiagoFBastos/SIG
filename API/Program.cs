@@ -1,6 +1,19 @@
 using API.Extensions;
+using FluentValidation;
+using System.Reflection;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+ValidatorOptions.Global.PropertyNameResolver = (type, member, expression) =>
+{
+    if (member != null)
+    {
+        var jsonProperty = member.GetCustomAttribute<JsonPropertyNameAttribute>();
+        return jsonProperty?.Name ?? member.Name;
+    }
+    return null;
+};
 
 // Add services to the container.
 

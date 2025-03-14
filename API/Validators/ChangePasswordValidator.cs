@@ -3,9 +3,9 @@ using Shared.Dtos;
 
 namespace API.Validators
 {
-    public class ChangePassowrValidator: AbstractValidator<ChangeUsuarioPasswordDto>
+    public class ChangePasswordValidator: AbstractValidator<ChangeUsuarioPasswordDto>
     {
-        public ChangePassowrValidator()
+        public ChangePasswordValidator()
         {
             RuleFor(p => p.NewPassword)
                 .NotNull().WithMessage("a nova senha é obrigatória")

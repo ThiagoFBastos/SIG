@@ -28,8 +28,8 @@ namespace UnitTests
         private readonly ProfessorService _professorService;
         private readonly Mock<IRepositoryManager> _repositoryManager;
         private readonly Mock<IEnderecoService> _enderecoService;
-        private readonly ITestOutputHelper _output; 
-
+        private readonly ITestOutputHelper _output;
+        private readonly Mock<IUsuarioProfessorService> _usuarioProfessorService;
         public ProfessorUnitTest(ITestOutputHelper output)
         {
             _output = output;
@@ -43,8 +43,9 @@ namespace UnitTests
             var logger = factory.CreateLogger<ProfessorService>();
 
             _enderecoService = new Mock<IEnderecoService>();
+            _usuarioProfessorService = new Mock<IUsuarioProfessorService>();
 
-            _professorService = new ProfessorService(_repositoryManager.Object, logger, _mapper, _enderecoService.Object);
+            _professorService = new ProfessorService(_repositoryManager.Object, logger, _mapper, _enderecoService.Object, _usuarioProfessorService.Object);
         }
 
         [Fact]
@@ -90,11 +91,13 @@ namespace UnitTests
             _repositoryManager.SetupGet(x => x.ProfessorRepository).Returns(professorRepository.Object);
             _enderecoService.Setup(x => x.CadastrarEndereco(It.IsAny<EnderecoForCreateDto>())).ReturnsAsync(Guid.NewGuid());
             _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
+            _usuarioProfessorService.Setup(x => x.CadastraUsuarioProfessor(It.IsAny<UsuarioProfessorForCreateDto>())).Verifiable();
 
             Guid matricula = await _professorService.CadastrarProfessor(professor);
 
             professorRepository.VerifyAll();
             _repositoryManager.VerifyAll();
+            _usuarioProfessorService.VerifyAll();
         }
         
         [Fact]

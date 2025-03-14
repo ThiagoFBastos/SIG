@@ -104,6 +104,21 @@ namespace Services
             return turmaRetornada;
         }
 
+        public async Task<TurmaSemNotaDto> ObterTurmaPorCodigoSemNota(Guid codigoTurma, GetTurmaOptions? opcoes = null)
+        {
+            Turma? turma = await _repositoryManager.TurmaRepository.GetTurmaAsync(codigoTurma, opcoes);
+
+            if (turma is null)
+            {
+                _logger.LogError($"A turma com código: {codigoTurma} não foi encontrado");
+                throw new NotFoundException($"A turma com código: {codigoTurma} não foi encontrado");
+            }
+
+            TurmaSemNotaDto turmaRetornada = _mapper.Map<TurmaSemNotaDto>(turma);
+
+            return turmaRetornada;
+        }
+
         public async Task<Pagination<TurmaDto>> ObterTurmas(GetTurmasOptions opcoes)
         {
             List<Turma> turmas = await _repositoryManager.TurmaRepository.GetTurmasAsync(opcoes);
@@ -114,6 +129,19 @@ namespace Services
                 CurrentPage = opcoes.ComecarApartirDe
             };
              
+            return paginacao;
+        }
+
+        public async Task<Pagination<TurmaSemNotaDto>> ObterTurmasSemNota(GetTurmasOptions opcoes)
+        {
+            List<Turma> turmas = await _repositoryManager.TurmaRepository.GetTurmasAsync(opcoes);
+
+            Pagination<TurmaSemNotaDto> paginacao = new Pagination<TurmaSemNotaDto>()
+            {
+                Items = _mapper.Map<List<TurmaSemNotaDto>>(turmas),
+                CurrentPage = opcoes.ComecarApartirDe
+            };
+
             return paginacao;
         }
     }

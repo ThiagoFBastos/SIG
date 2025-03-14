@@ -6,6 +6,7 @@ using Domain.Entities.Users;
 using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
+using Shared.Pagination;
 
 namespace Persistence.Repositories
 {
@@ -18,11 +19,64 @@ namespace Persistence.Repositories
 
         public void AddUsuarioAluno(UsuarioAluno usuarioAluno) => Add(usuarioAluno);
         public void UpdateUsuarioAluno(UsuarioAluno usuarioAluno) => Update(usuarioAluno);
-        public Task<UsuarioAluno?> GetAlunoAsync(Guid id)
-            => FindByCondition(ua => ua.Id == id)
-                .FirstOrDefaultAsync();
-        public Task<UsuarioAluno?> GetAlunoByEmailAsync(string email)
-            => FindByCondition(ua => ua.Email == email)
-                .FirstOrDefaultAsync();
+        public Task<UsuarioAluno?> GetAlunoAsync(Guid id, GetUsuarioAlunoOptions? opcoes = null)
+        {
+            var usuario = FindByCondition(ua => ua.Id == id);
+
+            if (opcoes != null && opcoes.IncluirAluno)
+            {
+                if (opcoes.IncluirEndereco)
+                {
+                    if (opcoes.IncluirTurma)
+                        usuario = usuario.Include(ua => ua.Aluno)
+                                            .ThenInclude(a => a.Endereco)
+                                         .Include(ua => ua.Aluno)
+                                            .ThenInclude(a => a.Turmas);
+                    else
+                        usuario = usuario.Include(ua => ua.Aluno)
+                                            .ThenInclude(a => a.Endereco);
+                }
+                else
+                {
+                    if (opcoes.IncluirTurma)
+                        usuario = usuario.Include(ua => ua.Aluno)
+                                            .ThenInclude(a => a.Turmas);
+                    else
+                        usuario = usuario.Include(ua => ua.Aluno);
+                }
+            }
+
+            return usuario.FirstOrDefaultAsync();
+        }
+
+        public Task<UsuarioAluno?> GetAlunoByEmailAsync(string email, GetUsuarioAlunoOptions? opcoes = null)
+        {
+            var usuario = FindByCondition(ua => ua.Email == email);
+
+            if (opcoes != null && opcoes.IncluirAluno)
+            {
+                if (opcoes.IncluirEndereco)
+                {
+                    if (opcoes.IncluirTurma)
+                        usuario = usuario.Include(ua => ua.Aluno)
+                                            .ThenInclude(a => a.Endereco)
+                                         .Include(ua => ua.Aluno)
+                                            .ThenInclude(a => a.Turmas);
+                    else
+                        usuario = usuario.Include(ua => ua.Aluno)
+                                            .ThenInclude(a => a.Endereco);
+                }
+                else
+                {
+                    if (opcoes.IncluirTurma)
+                        usuario = usuario.Include(ua => ua.Aluno)
+                                            .ThenInclude(a => a.Turmas);
+                    else
+                        usuario = usuario.Include(ua => ua.Aluno);
+                }
+            }
+
+            return usuario.FirstOrDefaultAsync();
+        }
     }
 }

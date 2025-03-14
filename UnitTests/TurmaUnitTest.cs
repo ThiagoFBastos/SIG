@@ -372,7 +372,83 @@ namespace UnitTests
 
             Assert.True(turmaDto.Match(turma));
         }
-        
+
+        [Fact]
+        public async Task Test_Get_Turma_Shouldnt_Work_Turma_Not_Found()
+        {
+            Guid codigoTurma = Guid.NewGuid();
+            Mock<ITurmaRepository> turmaRepository = new Mock<ITurmaRepository>();
+
+            turmaRepository.Setup(x => x.GetTurmaAsync(It.IsAny<Guid>(), It.IsAny<GetTurmaOptions>())).ReturnsAsync((Turma?)null);
+
+            _repositoryManager.Setup(x => x.TurmaRepository).Returns(turmaRepository.Object);
+
+            try
+            {
+                _ = await _turmaService.ObterTurmaPorCodigo(codigoTurma);
+                Assert.Fail();
+            }
+            catch(NotFoundException ex)
+            {
+                Assert.Equal($"A turma com código: {codigoTurma} não foi encontrado", ex.Message);
+            }
+            catch
+            {
+                Assert.Fail();
+            }
+        }
+
+        [Fact]
+        public async Task Test_Get_TurmaSemNota_Must_Work()
+        {
+            Mock<ITurmaRepository> turmaRepository = new Mock<ITurmaRepository>();
+
+            Turma turma = new Turma
+            {
+                Codigo = Guid.NewGuid(),
+                ProfessorMatricula = Guid.NewGuid(),
+                Disciplina = "Matemática",
+                AnoEscolar = Periodo.EF_9,
+                DataInicio = new DateTime(2024, 3, 1),
+                DataFim = new DateTime(2024, 12, 31),
+                HorarioAulaInicio = new DateTime(1, 1, 1, 8, 0, 0),
+                HorarioAulaFim = new DateTime(1, 1, 1, 18, 0, 0),
+            };
+
+            turmaRepository.Setup(x => x.GetTurmaAsync(It.IsAny<Guid>(), It.IsAny<GetTurmaOptions>())).ReturnsAsync(turma);
+
+            _repositoryManager.Setup(x => x.TurmaRepository).Returns(turmaRepository.Object);
+
+            TurmaSemNotaDto turmaDto = await _turmaService.ObterTurmaPorCodigoSemNota(turma.Codigo);
+
+            Assert.True(turmaDto.Match(turma));
+        }
+
+        [Fact]
+        public async Task Test_Get_TurmaSemNota_Shouldnt_Work_Turma_Not_Found()
+        {
+            Guid codigoTurma = Guid.NewGuid();
+            Mock<ITurmaRepository> turmaRepository = new Mock<ITurmaRepository>();
+
+            turmaRepository.Setup(x => x.GetTurmaAsync(It.IsAny<Guid>(), It.IsAny<GetTurmaOptions>())).ReturnsAsync((Turma?)null);
+
+            _repositoryManager.Setup(x => x.TurmaRepository).Returns(turmaRepository.Object);
+
+            try
+            {
+                _ = await _turmaService.ObterTurmaPorCodigoSemNota(codigoTurma);
+                Assert.Fail();
+            }
+            catch (NotFoundException ex)
+            {
+                Assert.Equal($"A turma com código: {codigoTurma} não foi encontrado", ex.Message);
+            }
+            catch
+            {
+                Assert.Fail();
+            }
+        }
+
         [Fact]
         public async Task Test_Filter_Turmas_Must_Work()
         {
@@ -410,6 +486,46 @@ namespace UnitTests
             Pagination<TurmaDto> pagination = await _turmaService.ObterTurmas(new GetTurmasOptions() { });
 
             for(int i = 0; i < pagination.Items.Count; ++i)
+                Assert.True(pagination.Items[i].Match(turmas[i]));
+        }
+
+        [Fact]
+        public async Task Test_Filter_TurmasSemNota_Must_Work()
+        {
+            Mock<ITurmaRepository> turmaRepository = new Mock<ITurmaRepository>();
+
+            List<Turma> turmas = new List<Turma>
+            {
+                new Turma
+                {
+                    Codigo = Guid.NewGuid(),
+                    ProfessorMatricula = Guid.NewGuid(),
+                    Disciplina = "Matemática",
+                    AnoEscolar = Periodo.EF_9,
+                    DataInicio = new DateTime(2024, 3, 1),
+                    DataFim = new DateTime(2024, 12, 31),
+                    HorarioAulaInicio = new DateTime(1, 1, 1, 8, 0, 0),
+                    HorarioAulaFim = new DateTime(1, 1, 1, 18, 0, 0),
+                },
+                new Turma
+                {
+                    Codigo = Guid.NewGuid(),
+                    ProfessorMatricula = Guid.NewGuid(),
+                    Disciplina = "Portugûes",
+                    AnoEscolar = Periodo.EF_9,
+                    DataInicio = new DateTime(2024, 3, 1),
+                    DataFim = new DateTime(2024, 12, 31),
+                    HorarioAulaInicio = new DateTime(1, 1, 1, 8, 0, 0),
+                    HorarioAulaFim = new DateTime(1, 1, 1, 18, 0, 0),
+                }
+            };
+
+            turmaRepository.Setup(x => x.GetTurmasAsync(It.IsAny<GetTurmasOptions>())).ReturnsAsync(turmas);
+            _repositoryManager.SetupGet(x => x.TurmaRepository).Returns(turmaRepository.Object);
+
+            Pagination<TurmaSemNotaDto> pagination = await _turmaService.ObterTurmasSemNota(new GetTurmasOptions() { });
+
+            for (int i = 0; i < pagination.Items.Count; ++i)
                 Assert.True(pagination.Items[i].Match(turmas[i]));
         }
     }

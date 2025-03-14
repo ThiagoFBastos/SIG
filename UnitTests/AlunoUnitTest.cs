@@ -27,6 +27,7 @@ namespace UnitTests
         private readonly Mock<IRepositoryManager> _repositoryManager;
         private readonly Mock<IEnderecoService> _enderecoService;
         private readonly ITestOutputHelper _output;
+        private readonly Mock<IUsuarioAlunoService> _usuarioAlunoService;
 
         public AlunoUnitTest(ITestOutputHelper output)
         {
@@ -42,8 +43,9 @@ namespace UnitTests
             var logger = factory.CreateLogger<AlunoService>();
 
             _enderecoService = new Mock<IEnderecoService>();
+            _usuarioAlunoService = new Mock<IUsuarioAlunoService>();
 
-            _alunoService = new AlunoService(_repositoryManager.Object, logger, _mapper, _enderecoService.Object);
+            _alunoService = new AlunoService(_repositoryManager.Object, logger, _mapper, _enderecoService.Object, _usuarioAlunoService.Object);
         }
  
         [Fact]
@@ -60,6 +62,7 @@ namespace UnitTests
             _repositoryManager.SetupGet(x => x.AlunoRepository).Returns(alunoRepository.Object);
             _enderecoService.Setup(x => x.CadastrarEndereco(It.IsAny<EnderecoForCreateDto>())).Verifiable();
             _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
+            _usuarioAlunoService.Setup(x => x.CadastraUsuarioAluno(It.IsAny<UsuarioAlunoForCreateDto>())).Verifiable();
 
             AlunoForCreateDto aluno = new AlunoForCreateDto
             {
@@ -88,6 +91,7 @@ namespace UnitTests
 
             alunoRepository.VerifyAll();
             _repositoryManager.VerifyAll();
+            _usuarioAlunoService.VerifyAll();
         }
         
         [Theory]

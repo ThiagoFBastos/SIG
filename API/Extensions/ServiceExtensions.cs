@@ -113,7 +113,8 @@ namespace API.Extensions
             services.AddValidatorsFromAssemblyContaining<GetAlunosOptionsValidator>();
             services.AddValidatorsFromAssemblyContaining<LoginUsuarioValidator>();
             services.AddValidatorsFromAssemblyContaining<UsuarioAdminForCreateValidator>();
-            services.AddValidatorsFromAssemblyContaining<ChangePassowrValidator>();
+            services.AddValidatorsFromAssemblyContaining<ChangePasswordValidator>();
+            services.AddValidatorsFromAssemblyContaining<AlunoTurmaChangeNotaValidator>();
         }
         public static void ConfigureSwagger(this IServiceCollection services)
         {
@@ -160,6 +161,6 @@ namespace API.Extensions
         }
 
         public static void ConfigureJsonOptions(this IServiceCollection services)
-            => services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
+            => services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
     }
 }

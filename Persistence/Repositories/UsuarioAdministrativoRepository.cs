@@ -7,6 +7,7 @@ using Domain.Entities.Users;
 using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
+using Shared.Pagination;
 
 namespace Persistence.Repositories
 {
@@ -21,12 +22,36 @@ namespace Persistence.Repositories
 
         public void UpdateUsuarioAdministrativo(UsuarioAdministrativo usuarioAdministrativo) => Update(usuarioAdministrativo);
 
-        public Task<UsuarioAdministrativo?> GetAdministrativoAsync(Guid id)
-               => FindByCondition(ua => ua.Id == id)
-                    .FirstOrDefaultAsync();
+        public Task<UsuarioAdministrativo?> GetAdministrativoAsync(Guid id, GetUsuarioAdministrativoOptions? opcoes = null)
+        {
+            var usuario = FindByCondition(ua => ua.Id == id);
 
-        public Task<UsuarioAdministrativo?> GetAdminstrativoByEmailAsync(string email)
-                => FindByCondition(ua => ua.Email == email)
-                    .FirstOrDefaultAsync();
+            if (opcoes != null && opcoes.IncluirAdministrativo)
+            {
+                if (opcoes.IncluirEndereco)
+                    usuario = usuario.Include(ua => ua.Administrativo)
+                                .ThenInclude(a => a.Endereco);
+                else
+                    usuario = usuario.Include(ua => ua.Administrativo);
+            }
+
+            return usuario.FirstOrDefaultAsync();
+        }
+
+        public Task<UsuarioAdministrativo?> GetAdminstrativoByEmailAsync(string email, GetUsuarioAdministrativoOptions? opcoes = null)
+        {
+            var usuario = FindByCondition(ua => ua.Email == email);
+
+            if (opcoes != null && opcoes.IncluirAdministrativo)
+            {
+                if (opcoes.IncluirEndereco)
+                    usuario = usuario.Include(ua => ua.Administrativo)
+                                .ThenInclude(a => a.Endereco);
+                else
+                    usuario = usuario.Include(ua => ua.Administrativo);
+            }
+
+            return usuario.FirstOrDefaultAsync();
+        }
     }
 }

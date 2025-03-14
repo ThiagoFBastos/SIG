@@ -3,21 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Shared.Pagination.Abstract
 {
     public abstract record class GetFuncionariosOptions: GetIntegranteOptions
     {
-        [JsonPropertyName("prefixo_cargo")]
+        [FromQuery(Name = "prefixo_cargo")]
         public string? PrefixoCargo { get; init; }
 
-        [JsonPropertyName("status")]
+        [FromQuery(Name = "status")]
         public int? Status { get; init; }
 
-        [JsonPropertyName("salario_minimo")]
+        [FromQuery(Name = "salario_minimo")]
         public decimal SalarioMinimo { get; init; } = 0;
 
-        [JsonPropertyName("salario_maximo")]
+        [FromQuery(Name = "salario_maximo")]
         public decimal SalarioMaximo { get; init; } = decimal.MaxValue;
     }
 }

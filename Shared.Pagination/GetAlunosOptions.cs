@@ -4,18 +4,19 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Shared.Pagination.Abstract;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Shared.Pagination
 {
     public record class GetAlunosOptions: GetIntegranteOptions
     {
-        [JsonPropertyName("ano_escolar")]
+        [FromQuery(Name = "ano_escolar")]
         public int? AnoEscolar { get; init; }
 
-        [JsonPropertyName("turno")]
+        [FromQuery(Name = "turno")]
         public int? Turno { get; init; }
 
-        [JsonPropertyName("incluir_turmas")]
+        [FromQuery(Name = "incluir_turmas")]
         public bool IncluirTurmas { get; init; } = false;
     } 
 } 

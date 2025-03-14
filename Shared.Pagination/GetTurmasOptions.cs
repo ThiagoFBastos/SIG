@@ -4,27 +4,28 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Shared.Pagination.Abstract;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Shared.Pagination
 {
     public record class GetTurmasOptions: GetOptions
     {
-        [JsonPropertyName("prefixo_disciplina")]
+        [FromQuery(Name = "prefixo_disciplina")]
         public string? PrefixoDisciplina { get; init; }
 
-        [JsonPropertyName("ano_escolar")]
+        [FromQuery(Name = "ano_escolar")]
         public int? AnoEscolar { get; init; }
 
-        [JsonPropertyName("a_partir_data")]
+        [FromQuery(Name = "a_partir_data")]
         public DateTime ApartirData { get; init; } = DateTime.MinValue;
 
-        [JsonPropertyName("ate_data")]
+        [FromQuery(Name = "ate_data")]
         public DateTime AteData { get; init; } = DateTime.MaxValue;
 
-        [JsonPropertyName("incluir_alunos")]
+        [FromQuery(Name = "incluir_alunos")]
         public bool IncluirAlunos { get; init; } = false;
 
-        [JsonPropertyName("incluir_professor")]
+        [FromQuery(Name = "incluir_professor")]
         public bool IncluirProfessor { get; init; } = false;
     }
 }

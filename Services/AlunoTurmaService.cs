@@ -56,17 +56,37 @@ namespace Services
             return alunoTurmaReal.Codigo;
         }
 
-        public async Task<AlunoTurmaDto> AlterarAlunoNaTurma(Guid matriculaAluno, Guid codigoTurma, AlunoTurmaForUpdateDto alunoTurma)
+        public async Task<AlunoTurmaDto> AlterarTurma(Guid matriculaAluno, Guid codigoTurma, AlunoTurmaChangeTurmaDto changeTurma)
         {
             AlunoTurma? alunoTurmaReal = await _repositoryManager.AlunoTurmaRepository.GetAlunoTurmaAsync(matriculaAluno, codigoTurma);
 
-            if(alunoTurmaReal is null)
+            if (alunoTurmaReal is null)
             {
                 _logger.LogError($"O aluno com matrícula: {matriculaAluno} na turma com código: {codigoTurma} não foi encontrado");
                 throw new NotFoundException($"O aluno com matrícula: {matriculaAluno} na turma com código: {codigoTurma} não foi encontrado");
             }
 
-            _mapper.Map(alunoTurma, alunoTurmaReal, typeof(AlunoTurma), typeof(AlunoTurmaForUpdateDto));
+            _mapper.Map(changeTurma, alunoTurmaReal, typeof(AlunoTurmaChangeTurmaDto), typeof(AlunoTurma));
+
+            _repositoryManager.AlunoTurmaRepository.UpdateAlunoTurma(alunoTurmaReal);
+            await _repositoryManager.SaveAsync();
+
+            AlunoTurmaDto alunoTurmaRetornado = _mapper.Map<AlunoTurmaDto>(alunoTurmaReal);
+
+            return alunoTurmaRetornado;
+        }
+
+        public async Task<AlunoTurmaDto> AlterarNota(Guid matriculaAluno, Guid codigoTurma, AlunoTurmaChangeNotaDto changeTurma)
+        {
+            AlunoTurma? alunoTurmaReal = await _repositoryManager.AlunoTurmaRepository.GetAlunoTurmaAsync(matriculaAluno, codigoTurma);
+
+            if (alunoTurmaReal is null)
+            {
+                _logger.LogError($"O aluno com matrícula: {matriculaAluno} na turma com código: {codigoTurma} não foi encontrado");
+                throw new NotFoundException($"O aluno com matrícula: {matriculaAluno} na turma com código: {codigoTurma} não foi encontrado");
+            }
+
+            _mapper.Map(changeTurma, alunoTurmaReal, typeof(AlunoTurmaChangeNotaDto), typeof(AlunoTurma));
 
             _repositoryManager.AlunoTurmaRepository.UpdateAlunoTurma(alunoTurmaReal);
             await _repositoryManager.SaveAsync();

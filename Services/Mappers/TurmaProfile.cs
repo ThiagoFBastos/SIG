@@ -24,6 +24,8 @@ namespace Services.Mappers
                 .ForMember(t => t.Codigo, opt => opt.Ignore())
                 .ForMember(t => t.Professor, opt => opt.Ignore())
                 .ForMember(t => t.Alunos, opt => opt.Ignore());
+
+            CreateMap<Turma, TurmaSemNotaDto>();
         }
     }
 }

@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Services.Mappers;
 using Shared.Dtos.Abstract;
 using System.Security.Claims;
+using Shared.Pagination;
 
 namespace UnitTests
 {
@@ -62,7 +63,7 @@ namespace UnitTests
                 ProfessorMatricula = Guid.NewGuid()
             };
 
-            _usuarioProfessorRepository.Setup(y => y.GetProfessorByEmailAsync(It.IsAny<string>())).ReturnsAsync(usuario);
+            _usuarioProfessorRepository.Setup(y => y.GetProfessorByEmailAsync(It.IsAny<string>(), It.IsAny<GetUsuarioProfessorOptions>())).ReturnsAsync(usuario);
             _passwordHash.Setup(y => y.Decrypt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(true);
             _repositoryManager.SetupGet(y => y.UsuarioProfessorRepository).Returns(_usuarioProfessorRepository.Object);
             _tokensService.Setup(y => y.JwtToken(It.IsAny<List<Claim>>())).Returns("Muryōkūsho");
@@ -81,7 +82,7 @@ namespace UnitTests
                 Password = "seis olhos"
             };
 
-            _usuarioProfessorRepository.Setup(y => y.GetProfessorByEmailAsync(It.IsAny<string>())).ReturnsAsync((UsuarioProfessor?)null);
+            _usuarioProfessorRepository.Setup(y => y.GetProfessorByEmailAsync(It.IsAny<string>(), It.IsAny<GetUsuarioProfessorOptions>())).ReturnsAsync((UsuarioProfessor?)null);
             _repositoryManager.SetupGet(y => y.UsuarioProfessorRepository).Returns(_usuarioProfessorRepository.Object);
 
             try
@@ -117,7 +118,7 @@ namespace UnitTests
                 ProfessorMatricula = Guid.NewGuid()
             };
 
-            _usuarioProfessorRepository.Setup(y => y.GetProfessorByEmailAsync(It.IsAny<string>())).ReturnsAsync(usuario);
+            _usuarioProfessorRepository.Setup(y => y.GetProfessorByEmailAsync(It.IsAny<string>(), It.IsAny<GetUsuarioProfessorOptions>())).ReturnsAsync(usuario);
             _passwordHash.Setup(y => y.Decrypt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(false);
             _repositoryManager.SetupGet(y => y.UsuarioProfessorRepository).Returns(_usuarioProfessorRepository.Object);
 
@@ -147,7 +148,7 @@ namespace UnitTests
             };
             string saltString;
 
-            _usuarioProfessorRepository.Setup(y => y.GetProfessorByEmailAsync(It.IsAny<string>())).ReturnsAsync((UsuarioProfessor?)null);
+            _usuarioProfessorRepository.Setup(y => y.GetProfessorByEmailAsync(It.IsAny<string>(), It.IsAny<GetUsuarioProfessorOptions>())).ReturnsAsync((UsuarioProfessor?)null);
             _usuarioProfessorRepository.Setup(y => y.AddUsuarioProfessor(It.IsAny<UsuarioProfessor>())).Verifiable();
             _passwordHash.Setup(x => x.Encrypt(It.IsAny<string>(), out saltString)).Returns("Sukuna");
             _repositoryManager.SetupGet(y => y.UsuarioProfessorRepository).Returns(_usuarioProfessorRepository.Object);
@@ -178,7 +179,7 @@ namespace UnitTests
                 Password = "Seis olhos"
             };
 
-            _usuarioProfessorRepository.Setup(y => y.GetProfessorByEmailAsync(It.IsAny<string>())).ReturnsAsync(usuario);
+            _usuarioProfessorRepository.Setup(y => y.GetProfessorByEmailAsync(It.IsAny<string>(), It.IsAny<GetUsuarioProfessorOptions>())).ReturnsAsync(usuario);
             _repositoryManager.SetupGet(y => y.UsuarioProfessorRepository).Returns(_usuarioProfessorRepository.Object);
 
             try
@@ -216,7 +217,7 @@ namespace UnitTests
 
             Guid id = Guid.NewGuid();
 
-            _usuarioProfessorRepository.Setup(y => y.GetProfessorAsync(It.IsAny<Guid>())).ReturnsAsync(usuario);
+            _usuarioProfessorRepository.Setup(y => y.GetProfessorAsync(It.IsAny<Guid>(), It.IsAny<GetUsuarioProfessorOptions>())).ReturnsAsync(usuario);
             _usuarioProfessorRepository.Setup(y => y.UpdateUsuarioProfessor(It.IsAny<UsuarioProfessor>())).Verifiable();
             _repositoryManager.SetupGet(y => y.UsuarioProfessorRepository).Returns(_usuarioProfessorRepository.Object);
             _passwordHash.Setup(y => y.Decrypt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(true);
@@ -239,7 +240,7 @@ namespace UnitTests
 
             Guid id = Guid.NewGuid();
 
-            _usuarioProfessorRepository.Setup(y => y.GetProfessorAsync(It.IsAny<Guid>())).ReturnsAsync((UsuarioProfessor?)null);
+            _usuarioProfessorRepository.Setup(y => y.GetProfessorAsync(It.IsAny<Guid>(), It.IsAny<GetUsuarioProfessorOptions>())).ReturnsAsync((UsuarioProfessor?)null);
             _repositoryManager.SetupGet(y => y.UsuarioProfessorRepository).Returns(_usuarioProfessorRepository.Object);
 
             try
@@ -277,7 +278,7 @@ namespace UnitTests
 
             Guid id = Guid.NewGuid();
 
-            _usuarioProfessorRepository.Setup(y => y.GetProfessorAsync(It.IsAny<Guid>())).ReturnsAsync(usuario);
+            _usuarioProfessorRepository.Setup(y => y.GetProfessorAsync(It.IsAny<Guid>(), It.IsAny<GetUsuarioProfessorOptions>())).ReturnsAsync(usuario);
             _repositoryManager.SetupGet(y => y.UsuarioProfessorRepository).Returns(_usuarioProfessorRepository.Object);
             _passwordHash.Setup(y => y.Decrypt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(false);
 
@@ -310,7 +311,7 @@ namespace UnitTests
 
             Guid id = Guid.NewGuid();
 
-            _usuarioProfessorRepository.Setup(x => x.GetProfessorAsync(It.IsAny<Guid>())).ReturnsAsync(usuario);
+            _usuarioProfessorRepository.Setup(x => x.GetProfessorAsync(It.IsAny<Guid>(), It.IsAny<GetUsuarioProfessorOptions>())).ReturnsAsync(usuario);
             _repositoryManager.SetupGet(y => y.UsuarioProfessorRepository).Returns(_usuarioProfessorRepository.Object);
 
             UsuarioProfessorDto usuarioDto = await _usuarioProfessorService.ObterUsuarioProfessor(id);
@@ -322,7 +323,7 @@ namespace UnitTests
         public async Task Test_GetById_UsuarioProfessor_Shouldnt_Work_Id_Not_Exist()
         {
             Guid id = Guid.NewGuid();
-            _usuarioProfessorRepository.Setup(x => x.GetProfessorAsync(It.IsAny<Guid>())).ReturnsAsync((UsuarioProfessor?)null);
+            _usuarioProfessorRepository.Setup(x => x.GetProfessorAsync(It.IsAny<Guid>(), It.IsAny<GetUsuarioProfessorOptions>())).ReturnsAsync((UsuarioProfessor?)null);
             _repositoryManager.SetupGet(y => y.UsuarioProfessorRepository).Returns(_usuarioProfessorRepository.Object);
 
             try
@@ -354,7 +355,7 @@ namespace UnitTests
 
             string email = "gojo@gmail.com";
 
-            _usuarioProfessorRepository.Setup(x => x.GetProfessorByEmailAsync(It.IsAny<string>())).ReturnsAsync(usuario);
+            _usuarioProfessorRepository.Setup(x => x.GetProfessorByEmailAsync(It.IsAny<string>(), It.IsAny<GetUsuarioProfessorOptions>())).ReturnsAsync(usuario);
             _repositoryManager.SetupGet(y => y.UsuarioProfessorRepository).Returns(_usuarioProfessorRepository.Object);
 
             UsuarioProfessorDto usuarioDto = await _usuarioProfessorService.ObterUsuarioProfessorPorEmail(email);
@@ -366,7 +367,7 @@ namespace UnitTests
         public async Task Test_GetByEmail_UsuarioProfessor_Shouldnt_Work_Email_not_Exist()
         {
             string email = "gojo@gmail.com";
-            _usuarioProfessorRepository.Setup(x => x.GetProfessorByEmailAsync(It.IsAny<string>())).ReturnsAsync((UsuarioProfessor?)null);
+            _usuarioProfessorRepository.Setup(x => x.GetProfessorByEmailAsync(It.IsAny<string>(), It.IsAny<GetUsuarioProfessorOptions>())).ReturnsAsync((UsuarioProfessor?)null);
             _repositoryManager.SetupGet(y => y.UsuarioProfessorRepository).Returns(_usuarioProfessorRepository.Object);
 
             try

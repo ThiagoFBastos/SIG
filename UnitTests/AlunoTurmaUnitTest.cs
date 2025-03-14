@@ -179,12 +179,10 @@ namespace UnitTests
                 Assert.Fail();
             }
         }
-        
-        [Fact]
-        public async Task Test_AlunoTurma_Update_Must_Work()
-        {
-            Mock<IAlunoTurmaRepository> alunoTurmaRepository = new Mock<IAlunoTurmaRepository>();
 
+        [Fact]
+        public async Task Test_AlunoTurma_AlterarTurma_Must_Work()
+        {
             AlunoTurma alunoTurma = new AlunoTurma
             {
                 AlunoMatricula = Guid.NewGuid(),
@@ -192,11 +190,15 @@ namespace UnitTests
                 Nota = 5
             };
 
-            AlunoTurmaForUpdateDto alunoTurmaForUpdate = new AlunoTurmaForUpdateDto
+            AlunoTurmaChangeTurmaDto changeTurmaDto = new AlunoTurmaChangeTurmaDto
             {
-                TurmaCodigo = Guid.NewGuid(),
-                Nota = 10
+                TurmaCodigo = Guid.NewGuid()
             };
+
+            Guid matriculaAluno = Guid.NewGuid();
+            Guid codigoTurma = Guid.NewGuid();
+
+            Mock<IAlunoTurmaRepository> alunoTurmaRepository = new Mock<IAlunoTurmaRepository>();
 
             alunoTurmaRepository.Setup(x => x.GetAlunoTurmaAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<GetAlunoTurmaOptions>())).ReturnsAsync(alunoTurma);
             alunoTurmaRepository.Setup(x => x.UpdateAlunoTurma(It.IsAny<AlunoTurma>())).Verifiable();
@@ -204,48 +206,114 @@ namespace UnitTests
             _repositoryManager.SetupGet(x => x.AlunoTurmaRepository).Returns(alunoTurmaRepository.Object);
             _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
 
-            AlunoTurmaDto alunoTurmaDto = await _alunoTurmaService.AlterarAlunoNaTurma(Guid.NewGuid(), Guid.NewGuid(), alunoTurmaForUpdate);
+            AlunoTurmaDto alunoTurmaDto = await _alunoTurmaService.AlterarTurma(matriculaAluno, codigoTurma, changeTurmaDto);
 
-            _repositoryManager.VerifyAll();
             alunoTurmaRepository.VerifyAll();
-
-            alunoTurma.TurmaCodigo = alunoTurmaForUpdate.TurmaCodigo;
-            alunoTurma.Nota = alunoTurmaForUpdate.Nota;
+            _repositoryManager.VerifyAll();
 
             Assert.True(alunoTurmaDto.Match(alunoTurma));
+            Assert.Equal(changeTurmaDto.TurmaCodigo, alunoTurmaDto.TurmaCodigo);
         }
-        
-        [Fact]
-        public async Task Test_AlunoTurma_Update_Shouldnt_Work_AlunoTurma_NotFound()
-        {
-            Mock<IAlunoTurmaRepository> alunoTurmaRepository = new Mock<IAlunoTurmaRepository>();
 
-            AlunoTurmaForUpdateDto alunoTurmaForUpdate = new AlunoTurmaForUpdateDto
+        [Fact]
+        public async Task Test_AlunoTurma_AlterarTurma_Shouldnt_Work_AlunoTurma_Not_Exists()
+        {
+           
+            AlunoTurmaChangeTurmaDto changeTurmaDto = new AlunoTurmaChangeTurmaDto
             {
-                TurmaCodigo = Guid.NewGuid(),
-                Nota = 10
+                TurmaCodigo = Guid.NewGuid()
             };
+
+            Guid matriculaAluno = Guid.NewGuid();
+            Guid codigoTurma = Guid.NewGuid();
+
+            Mock<IAlunoTurmaRepository> alunoTurmaRepository = new Mock<IAlunoTurmaRepository>();
 
             alunoTurmaRepository.Setup(x => x.GetAlunoTurmaAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<GetAlunoTurmaOptions>())).ReturnsAsync((AlunoTurma?)null);
             _repositoryManager.SetupGet(x => x.AlunoTurmaRepository).Returns(alunoTurmaRepository.Object);
 
-            Guid alunoMatricula = Guid.NewGuid(), codigoTurma = Guid.NewGuid();
-
             try
             {
-                _ = await _alunoTurmaService.AlterarAlunoNaTurma(alunoMatricula, codigoTurma, alunoTurmaForUpdate);
+                _ = await _alunoTurmaService.AlterarTurma(matriculaAluno, codigoTurma, changeTurmaDto);
                 Assert.Fail();
             }
             catch(NotFoundException ex)
             {
-                Assert.Equal($"O aluno com matrícula: {alunoMatricula} na turma com código: {codigoTurma} não foi encontrado", ex.Message);
+                Assert.Equal($"O aluno com matrícula: {matriculaAluno} na turma com código: {codigoTurma} não foi encontrado", ex.Message);
             }
             catch
             {
                 Assert.Fail();
             }
         }
-        
+
+        [Fact]
+        public async Task Test_AlunoTurma_AlterarNota_Must_Work()
+        {
+            AlunoTurma alunoTurma = new AlunoTurma
+            {
+                AlunoMatricula = Guid.NewGuid(),
+                TurmaCodigo = Guid.NewGuid(),
+                Nota = 5
+            };
+
+            AlunoTurmaChangeNotaDto changeNotaDto = new AlunoTurmaChangeNotaDto
+            {
+                Nota = 7.0
+            };
+
+            Guid matriculaAluno = Guid.NewGuid();
+            Guid codigoTurma = Guid.NewGuid();
+
+            Mock<IAlunoTurmaRepository> alunoTurmaRepository = new Mock<IAlunoTurmaRepository>();
+
+            alunoTurmaRepository.Setup(x => x.GetAlunoTurmaAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<GetAlunoTurmaOptions>())).ReturnsAsync(alunoTurma);
+            alunoTurmaRepository.Setup(x => x.UpdateAlunoTurma(It.IsAny<AlunoTurma>())).Verifiable();
+
+            _repositoryManager.SetupGet(x => x.AlunoTurmaRepository).Returns(alunoTurmaRepository.Object);
+            _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
+
+            AlunoTurmaDto alunoTurmaDto = await _alunoTurmaService.AlterarNota(matriculaAluno, codigoTurma, changeNotaDto);
+
+            alunoTurmaRepository.VerifyAll();
+            _repositoryManager.VerifyAll();
+
+            Assert.True(alunoTurmaDto.Match(alunoTurma));
+            Assert.Equal(changeNotaDto.Nota, alunoTurmaDto.Nota);
+        }
+
+        [Fact]
+        public async Task Test_AlunoTurma_AlterarNota_Shouldnt_Work_AlunoTurma_Not_Exists()
+        {
+
+            AlunoTurmaChangeNotaDto changeNotaDto = new AlunoTurmaChangeNotaDto
+            {
+                Nota = 7.0
+            };
+
+            Guid matriculaAluno = Guid.NewGuid();
+            Guid codigoTurma = Guid.NewGuid();
+
+            Mock<IAlunoTurmaRepository> alunoTurmaRepository = new Mock<IAlunoTurmaRepository>();
+
+            alunoTurmaRepository.Setup(x => x.GetAlunoTurmaAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<GetAlunoTurmaOptions>())).ReturnsAsync((AlunoTurma?)null);
+            _repositoryManager.SetupGet(x => x.AlunoTurmaRepository).Returns(alunoTurmaRepository.Object);
+
+            try
+            {
+                _ = await _alunoTurmaService.AlterarNota(matriculaAluno, codigoTurma, changeNotaDto);
+                Assert.Fail();
+            }
+            catch (NotFoundException ex)
+            {
+                Assert.Equal($"O aluno com matrícula: {matriculaAluno} na turma com código: {codigoTurma} não foi encontrado", ex.Message);
+            }
+            catch
+            {
+                Assert.Fail();
+            }
+        }
+
         [Fact]
         public async Task Test_AlunoTurma_Delete_Must_Work()
         {

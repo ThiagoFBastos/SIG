@@ -1,5 +1,6 @@
 using Domain.Entities.Users;
 using Shared.Dtos;
+using Shared.Pagination;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace Services.Contracts
         Task<string> Login(LoginUsuarioDto loginUsuarioDto);
         Task CadastraUsuarioProfessor(UsuarioProfessorForCreateDto usuarioProfessorDto);
         Task AlteraSenhaUsuarioProfessor(Guid id, ChangeUsuarioPasswordDto changePasswordDto);
-        Task<UsuarioProfessorDto> ObterUsuarioProfessor(Guid id);
-        Task<UsuarioProfessorDto> ObterUsuarioProfessorPorEmail(string email);
+        Task<UsuarioProfessorDto> ObterUsuarioProfessor(Guid id, GetUsuarioProfessorOptions? opcoes = null);
+        Task<UsuarioProfessorDto> ObterUsuarioProfessorPorEmail(string email, GetUsuarioProfessorOptions? opcoes = null);
     }
 }

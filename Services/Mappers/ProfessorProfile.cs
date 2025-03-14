@@ -33,7 +33,9 @@ namespace Services.Mappers
                 .ForMember(p => p.RG, opt => opt.Ignore())
                 .ForMember(p => p.DataNascimento, opt => opt.Ignore())
                 .ForMember(p => p.NomeCompleto, opt => opt.Ignore())
-                .ForMember(p => p.Sexo, opt => opt.Ignore());       
+                .ForMember(p => p.Sexo, opt => opt.Ignore());
+
+            CreateMap<Professor, ProfessorDeTurmasSemNotaDto>();
         }
     }
 }

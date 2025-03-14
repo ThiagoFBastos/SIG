@@ -10,8 +10,8 @@ namespace Domain.Repositories
 
         void UpdateUsuarioAdministrativo(UsuarioAdministrativo usuarioAdministrativo);
 
-        Task<UsuarioAdministrativo?> GetAdministrativoAsync(Guid id);
+        Task<UsuarioAdministrativo?> GetAdministrativoAsync(Guid id, GetUsuarioAdministrativoOptions? opcoes = null);
 
-        Task<UsuarioAdministrativo?> GetAdminstrativoByEmailAsync(string email);
+        Task<UsuarioAdministrativo?> GetAdminstrativoByEmailAsync(string email, GetUsuarioAdministrativoOptions? opcoes = null);
     }
 }
