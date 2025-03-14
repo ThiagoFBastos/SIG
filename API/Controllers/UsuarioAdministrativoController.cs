@@ -93,6 +93,7 @@ namespace API.Controllers
         /// <response code="200">Dados do usuário</response>
         /// <response code="400">Parâmetros inválidos</response>
         /// <response code="404">Usuário não encontrado</response>
+        /// <response code="401">Usuário não autorizado</response>
         /// <returns>Dados do usuário requisitado</returns>
         /// <exception cref="BadRequestException">Exceção causada por algum parâmetro inválido passado</exception>
         [HttpGet("by/id/{id}")]
@@ -100,6 +101,7 @@ namespace API.Controllers
         [ProducesResponseType(typeof(UsuarioAdministrativoDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetById([FromRoute] Guid id, [FromQuery] GetUsuarioAdministrativoOptions? opcoes = null)
         {
             if(User.IsInRole("administrativo"))
@@ -130,6 +132,7 @@ namespace API.Controllers
         /// <response code="200">Dados do usuário</response>
         /// <response code="400">Parâmetros inválidos</response>
         /// <response code="404">Usuário não encontrado</response>
+        /// <response code="401">Usuário não autorizado</response>
         /// <returns>Dados do usuário requisitado</returns>
         /// <exception cref="BadRequestException">Exceção causada por algum parâmetro inválido passado</exception>
         [HttpGet("by/email/{email}")]
@@ -137,6 +140,7 @@ namespace API.Controllers
         [ProducesResponseType(typeof(UsuarioAdministrativoDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetByEmail([FromRoute] string email, [FromQuery] GetUsuarioAdministrativoOptions? opcoes = null)
         {
             if(User.IsInRole("administrativo"))
