@@ -76,6 +76,8 @@ namespace API.Controllers
         /// Exclui um aluno dado a sua matrícula
         /// </summary>
         /// <param name="matricula">Matrícula do aluno que se deseja excluir</param>
+        /// <response code="204">Aluno excluído com sucesso</response>
+        /// <response code="404">Aluno não encontrado</response>
         /// <returns>Sem conteúdo</returns>
         [HttpDelete("{matricula}")]
         [Authorize(Roles = "admin,administrativo")]
@@ -92,6 +94,8 @@ namespace API.Controllers
         /// </summary>
         /// <param name="matricula">Matrícula do aluno</param>
         /// <param name="opcoes">Opções adicionais de requisição</param>
+        /// <response code="200">Dados do aluno retornados</response>
+        /// <response code="404">Aluno não encontrado</response>
         /// <returns>Um aluno</returns>
         [HttpGet("{matricula}")]
         [Authorize(Roles = "admin,administrativo")]
@@ -108,6 +112,8 @@ namespace API.Controllers
         /// </summary>
         /// <param name="cpf">CPF do aluno</param>
         /// <param name="opcoes">Opções adicionais de requisição</param>
+        /// <response code="200">Dados do aluno retornados</response>
+        /// <response code="404">Aluno não encontrado</response>
         /// <returns>Um aluno</returns>
         [HttpGet("by/cpf/{cpf}")]
         [Authorize(Roles = "admin,administrativo")]
@@ -124,6 +130,8 @@ namespace API.Controllers
         /// </summary>
         /// <param name="rg">RG do aluno</param>
         /// <param name="opcoes">Opções adicionais de requisição</param>
+        /// <response code="200">Dados do aluno retornados</response>
+        /// <response code="404">Aluno não encontrado</response>
         /// <returns>Um aluno</returns>
         [HttpGet("by/rg/{rg}")]
         [Authorize(Roles = "admin,administrativo")]
@@ -140,6 +148,8 @@ namespace API.Controllers
         /// </summary>
         /// <param name="email">Email do aluno</param>
         /// <param name="opcoes">Opções adicionais de requisição</param>
+        /// <response code="200">Dados do aluno retornados</response>
+        /// <response code="404">Aluno não encontrado</response>
         /// <returns>Um aluno</returns>
         [HttpGet("by/email/{email}")]
         [Authorize(Roles = "admin,administrativo")]
@@ -156,6 +166,8 @@ namespace API.Controllers
         /// </summary>
         /// <param name="celular">Celular do aluno</param>
         /// <param name="opcoes">Opções adicionais de requisição</param>
+        /// <response code="200">Dados do aluno retornados</response>
+        /// <response code="404">Aluno não encontrado</response>
         /// <returns>Um aluno</returns>
         [HttpGet("by/celular/{celular}")]
         [Authorize(Roles = "admin,administrativo")]
@@ -171,6 +183,9 @@ namespace API.Controllers
         /// Obtém uma lista de alunos com base em parâmetros de filtragem
         /// </summary>
         /// <param name="opcoes">Parâmetros de filtragem</param>
+        /// <response code="200">Uma lista de alunos filtrados</response>
+        /// <response code="204">Nenhum aluno foi encontrado</response>
+        /// <response code="400">Parâmetros inválidos</response>
         /// <returns>Uma lista paginada de alunos</returns>
         [HttpGet("filter")]
         [Authorize(Roles = "admin,administrativo")]
