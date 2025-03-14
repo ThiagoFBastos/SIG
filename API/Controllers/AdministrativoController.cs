@@ -141,6 +141,7 @@ namespace API.Controllers
         /// <param name="matricula">Matrícula do administrativo</param>
         /// <param name="administrativo">Dados do administrativo para se atualizar</param>
         /// <response code="200">O administrativo com a matrícula indicada e com os dados atualizados</response>
+        /// <response code="400">Parâmetros inválidos</response>
         /// <response code="404">Administrativo não encontrado</response>
         /// <returns>Um administrativo</returns>
         [HttpPut("{matricula}")]
@@ -176,6 +177,9 @@ namespace API.Controllers
         /// Filtra os administrativos com base nos parâmetros passados
         /// </summary>
         /// <param name="opcoes">Parâmetros para a filtragem</param>
+        /// <response code="200">Lista com os administrativos</response>
+        /// <response code="204">Nenhum resultado foi encontrado</response>
+        /// <response code="400">Parâmetros inválidos</response>
         /// <returns>Uma lista paginada de administrativos</returns>
         [HttpGet("filter")]
         [ProducesResponseType(typeof(Pagination<AdministrativoDto>), StatusCodes.Status200OK)]
