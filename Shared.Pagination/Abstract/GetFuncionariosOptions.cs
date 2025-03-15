@@ -10,15 +10,19 @@ namespace Shared.Pagination.Abstract
     public abstract record class GetFuncionariosOptions: GetIntegranteOptions
     {
         [FromQuery(Name = "prefixo_cargo")]
+        [JsonPropertyName("prefixo_cargo")]
         public string? PrefixoCargo { get; init; }
 
         [FromQuery(Name = "status")]
+        [JsonPropertyName("status")]
         public int? Status { get; init; }
 
         [FromQuery(Name = "salario_minimo")]
+        [JsonPropertyName("salario_minimo")]
         public decimal SalarioMinimo { get; init; } = 0;
 
         [FromQuery(Name = "salario_maximo")]
+        [JsonPropertyName("salario_maximo")]
         public decimal SalarioMaximo { get; init; } = decimal.MaxValue;
     }
 }

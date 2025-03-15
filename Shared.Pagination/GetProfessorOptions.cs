@@ -10,9 +10,11 @@ namespace Shared.Pagination
     public record class GetProfessorOptions
     {
         [FromQuery(Name = "incluir_turmas")]
+        [JsonPropertyName("incluir_turmas")]
         public bool IncluirTurmas { get; init; } = false;
 
         [FromQuery(Name = "incluir_endereco")]
+        [JsonPropertyName("incluir_endereco")]
         public bool IncluirEndereco { get; init; } = false;
     }
 } 

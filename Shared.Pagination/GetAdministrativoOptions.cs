@@ -10,6 +10,7 @@ namespace Shared.Pagination
     public record class GetAdministrativoOptions
     {
         [FromQuery(Name = "incluir_endereco")]
+        [JsonPropertyName("incluir_endereco")]
         public bool IncluirEndereco { get; init; } = false;
     }
 }

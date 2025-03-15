@@ -11,6 +11,7 @@ namespace Shared.Pagination
     public record class GetProfessoresOptions: GetFuncionariosOptions
     {
         [FromQuery(Name = "incluir_turmas")]
+        [JsonPropertyName("incluir_turmas")]
         public bool IncluirTurmas { get; init; } = false;
     }
 }

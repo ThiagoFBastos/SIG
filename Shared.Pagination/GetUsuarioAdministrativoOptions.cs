@@ -11,9 +11,11 @@ namespace Shared.Pagination
     public class GetUsuarioAdministrativoOptions
     {
         [FromQuery(Name = "incluir_administrativo")]
+        [JsonPropertyName("incluir_administrativo")]
         public required bool IncluirAdministrativo { get; set; }
 
         [FromQuery(Name = "incluir_endereco")]
+        [JsonPropertyName("incluir_endereco")]
         public required bool IncluirEndereco { get; set; }
     }
 }

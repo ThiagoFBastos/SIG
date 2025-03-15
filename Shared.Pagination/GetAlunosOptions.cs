@@ -11,12 +11,15 @@ namespace Shared.Pagination
     public record class GetAlunosOptions: GetIntegranteOptions
     {
         [FromQuery(Name = "ano_escolar")]
+        [JsonPropertyName("ano_escolar")]
         public int? AnoEscolar { get; init; }
 
         [FromQuery(Name = "turno")]
+        [JsonPropertyName("turno")]
         public int? Turno { get; init; }
 
         [FromQuery(Name = "incluir_turmas")]
+        [JsonPropertyName("incluir_turmas")]
         public bool IncluirTurmas { get; init; } = false;
     } 
 } 

@@ -11,9 +11,11 @@ namespace Shared.Pagination
     public class GetUsuarioProfessorOptions
     {
         [FromQuery(Name = "incluir_professor")]
+        [JsonPropertyName("incluir_professor")]
         public required bool IncluirProfessor {  get; set; }
 
         [FromQuery(Name = "incluir_endereco")]
+        [JsonPropertyName("incluir_endereco")]
         public required bool IncluirEndereco { get; set; }
     }
 }
