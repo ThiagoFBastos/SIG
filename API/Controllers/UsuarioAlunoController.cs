@@ -32,13 +32,11 @@ namespace API.Controllers
         /// <param name="loginDto">Parâmetros necessários para se autenticar um usuário como email e senha</param>
         /// <response code="200">Token gerado com sucesso</response>
         /// <response code="400">Parâmetros inválidos</response>
-        /// <response code="404">Usuário não encontrado</response>
-        /// <response code="401">Senha incorreta</response>
+        /// <response code="401">Email e/ou senha incorretos</response>
         /// <returns>Um token JWT</returns>
         [HttpPost("login")]
         [ProducesResponseType(typeof(JwtTokenDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Login([FromBody] LoginUsuarioDto loginDto)
         {
@@ -54,7 +52,7 @@ namespace API.Controllers
         /// Altera a senha do usuário aluno
         /// </summary>
         /// <param name="changePassword">Parâmetros necessários para se alterar a senha do usuário</param>
-        /// <response code="200">Senha alterada com sucesso</response>
+        /// <response code="204">Senha alterada com sucesso</response>
         /// <response code="400">Parâmetros inválidos</response>
         /// <response code="404">Usuário não encontrado</response>
         /// <response code="401">Senha incorreta</response>
@@ -62,7 +60,7 @@ namespace API.Controllers
         /// <exception cref="BadRequestException">Exceção causada por passagem de dados inválidos</exception>
         [HttpPut("updatePassword")]
         [Authorize(Roles = "aluno")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -82,7 +80,7 @@ namespace API.Controllers
                 throw new BadRequestException("o token do usuário está incorreto");
 
             await _usuarioAlunoService.AlteraSenhaUsuarioAluno(id, changePassword);
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
