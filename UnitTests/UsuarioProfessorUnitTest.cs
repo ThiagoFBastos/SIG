@@ -90,9 +90,9 @@ namespace UnitTests
                 _ = await _usuarioProfessorService.Login(loginDto);
                 Assert.Fail();
             }
-            catch(NotFoundException ex)
+            catch(UnauthorizedException ex)
             {
-                Assert.Equal("email não encontrado", ex.Message);
+                Assert.Equal("email e/ou senha incorretos", ex.Message);
             }
             catch
             {
