@@ -35,13 +35,11 @@ namespace API.Controllers
         /// <param name="loginDto">Parâmetros necessários para se autenticar um usuário como email e senha</param>
         /// <response code="200">Token gerado com sucesso</response>
         /// <response code="400">Parâmetros inválidos</response>
-        /// <response code="404">Usuário não encontrado</response>
-        /// <response code="401">Senha incorreta</response>
+        /// <response code="401">Email e/ou senha incorretos</response>
         /// <returns>Um token JWT</returns>
         [HttpPost("login")]
         [ProducesResponseType(typeof(JwtTokenDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Login([FromBody] LoginUsuarioDto loginDto)
         {
