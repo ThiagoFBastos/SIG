@@ -47,7 +47,7 @@ namespace API.Controllers
             if(!ModelState.IsValid)
                 return UnprocessableEntity(administrativo);
 
-            Guid matricula = await _administrativoService.CadastrarAdmnistrativo(administrativo);
+            Guid matricula = await _administrativoService.CadastrarAdministrativo(administrativo);
             return Ok(new GuidResponseDto(matricula));
         }
 
