@@ -12,6 +12,7 @@ namespace API.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json")]
     public class UsuarioAdminController : ControllerBase
     {
         private readonly IUsuarioAdminService _usuarioAdminService;

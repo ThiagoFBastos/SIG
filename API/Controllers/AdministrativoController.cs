@@ -18,6 +18,7 @@ namespace API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = "admin,administrativo")]
+    [Produces("application/json")]
     public class AdministrativoController : ControllerBase
     {
         private readonly IAdministrativoService _administrativoService;
