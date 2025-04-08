@@ -98,7 +98,7 @@ namespace UnitTests
             _repositoryManager.Setup(x => x.SaveAsync()).Verifiable();
             _usuarioAdministrativoService.Setup(x => x.CadastraUsuarioAdministrativo(It.IsAny<UsuarioAdministrativoForCreateDto>())).Verifiable();
 
-            Guid matricula = await _administrativoService.CadastrarAdmnistrativo(administrativoForCreate);
+            Guid matricula = await _administrativoService.CadastrarAdministrativo(administrativoForCreate);
 
             _repositoryManager.VerifyAll();
             administrativoRepository.VerifyAll();
@@ -146,7 +146,7 @@ namespace UnitTests
 
             try
             {
-                _ = await _administrativoService.CadastrarAdmnistrativo(administrativoForCreate);
+                _ = await _administrativoService.CadastrarAdministrativo(administrativoForCreate);
                 Assert.Fail();
             }
             catch(BadRequestException ex)
@@ -201,7 +201,7 @@ namespace UnitTests
 
             try
             {
-                _ = await _administrativoService.CadastrarAdmnistrativo(administrativoForCreate);
+                _ = await _administrativoService.CadastrarAdministrativo(administrativoForCreate);
                 Assert.Fail();
             }
             catch(BadRequestException ex)
@@ -257,7 +257,7 @@ namespace UnitTests
 
             try
             {
-                _ = await _administrativoService.CadastrarAdmnistrativo(administrativoForCreate);
+                _ = await _administrativoService.CadastrarAdministrativo(administrativoForCreate);
                 Assert.Fail();
             }
             catch(BadRequestException ex)
@@ -314,7 +314,7 @@ namespace UnitTests
 
             try
             {
-                _ = await _administrativoService.CadastrarAdmnistrativo(administrativoForCreate);
+                _ = await _administrativoService.CadastrarAdministrativo(administrativoForCreate);
                 Assert.Fail();
             }
             catch(BadRequestException ex)

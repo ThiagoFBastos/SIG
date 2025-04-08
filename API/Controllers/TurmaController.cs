@@ -17,6 +17,7 @@ namespace API.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
+    [Produces("application/json")]
     public class TurmaController : ControllerBase
     {
         private readonly ITurmaService _turmaService;

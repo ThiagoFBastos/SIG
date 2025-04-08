@@ -30,7 +30,7 @@ namespace Services
             _usuarioAdministrativoService = usuarioAdministrativoService;
         }
 
-        public async Task<Guid> CadastrarAdmnistrativo(AdministrativoForCreateDto administrativo)
+        public async Task<Guid> CadastrarAdministrativo(AdministrativoForCreateDto administrativo)
         {
             if(await _repositoryManager.AdministrativoRepository.GetAdministrativoPorCPFAsync(administrativo.CPF) is not null)
             {
@@ -62,14 +62,14 @@ namespace Services
             _repositoryManager.AdministrativoRepository.AddAdministrativo(administrativoReal);
             await _repositoryManager.SaveAsync();
 
-            UsuarioAdministrativoForCreateDto ausuarioAministrativoForCreateDto = new UsuarioAdministrativoForCreateDto
+            UsuarioAdministrativoForCreateDto usuarioAdministrativoForCreateDto = new UsuarioAdministrativoForCreateDto
             {
                 AdministrativoMatricula = administrativoReal.Matricula,
                 Email = administrativoReal.Email,
                 Password = administrativoReal.CPF
             };
 
-            await _usuarioAdministrativoService.CadastraUsuarioAdministrativo(ausuarioAministrativoForCreateDto);
+            await _usuarioAdministrativoService.CadastraUsuarioAdministrativo(usuarioAdministrativoForCreateDto);
 
             return administrativoReal.Matricula;
         }

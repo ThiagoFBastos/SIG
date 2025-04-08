@@ -16,6 +16,7 @@ namespace API.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json")]
     public class UsuarioProfessorController : ControllerBase
     {
         private readonly IUsuarioProfessorService _usuarioProfessorService;

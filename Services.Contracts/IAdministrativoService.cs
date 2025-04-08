@@ -6,7 +6,7 @@ namespace Services.Contracts
 {
     public interface IAdministrativoService
     {
-        Task<Guid> CadastrarAdmnistrativo(AdministrativoForCreateDto administrativo);
+        Task<Guid> CadastrarAdministrativo(AdministrativoForCreateDto administrativo);
 
         Task<AdministrativoDto> AlterarAdministrativo(Guid administrativoMatricula, AdministrativoForUpdateDto administrativo);
 

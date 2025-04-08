@@ -18,6 +18,7 @@ namespace API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = "admin,administrativo")]
+    [Produces("application/json")]
     public class AdministrativoController : ControllerBase
     {
         private readonly IAdministrativoService _administrativoService;
@@ -46,7 +47,7 @@ namespace API.Controllers
             if(!ModelState.IsValid)
                 return UnprocessableEntity(administrativo);
 
-            Guid matricula = await _administrativoService.CadastrarAdmnistrativo(administrativo);
+            Guid matricula = await _administrativoService.CadastrarAdministrativo(administrativo);
             return Ok(new GuidResponseDto(matricula));
         }
 

@@ -16,6 +16,7 @@ namespace API.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
+    [Produces("application/json")]
     public class AlunoTurmaController : ControllerBase
     {
         private readonly IAlunoTurmaService _alunoTurmaService;
