@@ -42,7 +42,8 @@ git clone https://github.com/ThiagoFBastos/SIG.git
 
 ```
  "ConnectionStrings": {
-    "DefaultConnection": "<SUA STRING DE CONEXÃO>"
+    "DefaultConnection": "<SUA STRING DE CONEXÃO>",
+    "TestConnection": "<SUA STRING DE CONEXÃO DE TESTE>
   }
 ```
 
