@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Domain.Repositories;
+using Microsoft.EntityFrameworkCore.Storage;
 using Persistence.Context;
 
 namespace Persistence.Repositories
@@ -47,6 +48,15 @@ namespace Persistence.Repositories
         public IUsuarioAlunoRepository UsuarioAlunoRepository => usuarioAlunoRepository.Value;
         public IUsuarioProfessorRepository UsuarioProfessorRepository => usuarioProfessorRepository.Value;
 
-        public Task SaveAsync() => _context.SaveChangesAsync();
+        public async Task SaveAsync()
+        {
+            await _context.SaveChangesAsync();
+            _context.ChangeTracker.Clear();
+        }
+
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await _context.Database.BeginTransactionAsync();
+        }
     }
 }

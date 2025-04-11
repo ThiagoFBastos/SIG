@@ -19,13 +19,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\Unit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Pagination", "Shared.Pagination\Shared.Pagination.csproj", "{E017302C-06C1-44F9-AD5D-504C3DDC6A1A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "IntegrationTests\IntegrationTests.csproj", "{D64E6FE6-210B-4A4C-A99D-45BAD4C3CFA2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{DAFDB20F-A2D5-4C83-8846-4D9C7053F9DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -60,5 +59,12 @@ Global
 		{E017302C-06C1-44F9-AD5D-504C3DDC6A1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E017302C-06C1-44F9-AD5D-504C3DDC6A1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E017302C-06C1-44F9-AD5D-504C3DDC6A1A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D64E6FE6-210B-4A4C-A99D-45BAD4C3CFA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D64E6FE6-210B-4A4C-A99D-45BAD4C3CFA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D64E6FE6-210B-4A4C-A99D-45BAD4C3CFA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D64E6FE6-210B-4A4C-A99D-45BAD4C3CFA2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
