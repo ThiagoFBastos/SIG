@@ -161,6 +161,27 @@ namespace Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "usuarios_alunos",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    AlunoMatricula = table.Column<Guid>(type: "uuid", nullable: false),
+                    Email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    SalString = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_usuarios_alunos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_usuarios_alunos_alunos_AlunoMatricula",
+                        column: x => x.AlunoMatricula,
+                        principalTable: "alunos",
+                        principalColumn: "Matricula",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "turmas",
                 columns: table => new
                 {
@@ -178,6 +199,27 @@ namespace Persistence.Migrations
                     table.PrimaryKey("PK_turmas", x => x.Codigo);
                     table.ForeignKey(
                         name: "FK_turmas_professores_ProfessorMatricula",
+                        column: x => x.ProfessorMatricula,
+                        principalTable: "professores",
+                        principalColumn: "Matricula",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "usuarios_professores",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProfessorMatricula = table.Column<Guid>(type: "uuid", nullable: false),
+                    Email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    SalString = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_usuarios_professores", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_usuarios_professores_professores_ProfessorMatricula",
                         column: x => x.ProfessorMatricula,
                         principalTable: "professores",
                         principalColumn: "Matricula",
@@ -213,7 +255,7 @@ namespace Persistence.Migrations
             migrationBuilder.InsertData(
                 table: "usuarios_admins",
                 columns: new[] { "Id", "Email", "PasswordHash", "SalString" },
-                values: new object[] { new Guid("bc8862eb-5be7-4dfb-a1e4-b85c7072fb16"), "juliamagalhaes@outlook.com", "sMjTxzPJm/DGJB3yH2K0nWlLIRJJms6VQx+AqshSyNc=", "Ur0j4RP9p9ZZSh/uRx5PJw==" });
+                values: new object[] { new Guid("cd7e350c-9e2f-4cd7-898f-7a70c5c6c4de"), "juliamagalhaes@outlook.com", "RHK++qjHG1d4Tuo6c0q6lt/8zyAY8HaBBUOGft9ggLk=", "PyLrJIQ4d0liMDLOMEmW1A==" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_administrativos_Celular",
@@ -334,6 +376,28 @@ namespace Persistence.Migrations
                 table: "usuarios_admins",
                 column: "Email",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_usuarios_alunos_AlunoMatricula",
+                table: "usuarios_alunos",
+                column: "AlunoMatricula");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_usuarios_alunos_Email",
+                table: "usuarios_alunos",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_usuarios_professores_Email",
+                table: "usuarios_professores",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_usuarios_professores_ProfessorMatricula",
+                table: "usuarios_professores",
+                column: "ProfessorMatricula");
         }
 
         /// <inheritdoc />
@@ -349,13 +413,19 @@ namespace Persistence.Migrations
                 name: "usuarios_admins");
 
             migrationBuilder.DropTable(
-                name: "alunos");
+                name: "usuarios_alunos");
+
+            migrationBuilder.DropTable(
+                name: "usuarios_professores");
 
             migrationBuilder.DropTable(
                 name: "turmas");
 
             migrationBuilder.DropTable(
                 name: "administrativos");
+
+            migrationBuilder.DropTable(
+                name: "alunos");
 
             migrationBuilder.DropTable(
                 name: "professores");

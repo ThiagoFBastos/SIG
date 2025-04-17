@@ -48,15 +48,6 @@ namespace Persistence.Repositories
         public IUsuarioAlunoRepository UsuarioAlunoRepository => usuarioAlunoRepository.Value;
         public IUsuarioProfessorRepository UsuarioProfessorRepository => usuarioProfessorRepository.Value;
 
-        public async Task SaveAsync()
-        {
-            await _context.SaveChangesAsync();
-            _context.ChangeTracker.Clear();
-        }
-
-        public async Task<IDbContextTransaction> BeginTransactionAsync()
-        {
-            return await _context.Database.BeginTransactionAsync();
-        }
+        public Task SaveAsync() => _context.SaveChangesAsync();
     }
 }

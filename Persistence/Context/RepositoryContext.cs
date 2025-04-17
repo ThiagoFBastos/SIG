@@ -130,16 +130,10 @@ namespace Persistence.Context
 
             modelBuilder.Entity<UsuarioAdmin>(a =>
             {
-                const string password = "15158114099Aa$$";
-                string salString;
-                PasswordHash hash = new PasswordHash();
-
-                string passwordHash = hash.Encrypt(password, out salString);
-
                 a.HasIndex(a => a.Email)
                     .IsUnique();
 
-                a.HasData(new UsuarioAdmin { Id = Guid.NewGuid(), Email = "juliamagalhaes@outlook.com", PasswordHash = passwordHash, SalString = salString });
+                a.HasData(new UsuarioAdmin { Id = new Guid("cd7e350c-9e2f-4cd7-898f-7a70c5c6c4de"), Email = "juliamagalhaes@outlook.com", PasswordHash = "RHK++qjHG1d4Tuo6c0q6lt/8zyAY8HaBBUOGft9ggLk=", SalString = "PyLrJIQ4d0liMDLOMEmW1A==" });
             });
 
             modelBuilder.Entity<UsuarioAdministrativo>(a =>

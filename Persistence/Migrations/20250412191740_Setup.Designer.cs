@@ -12,7 +12,7 @@ using Persistence.Context;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    [Migration("20250127010903_Setup")]
+    [Migration("20250412191740_Setup")]
     partial class Setup
     {
         /// <inheritdoc />
@@ -412,10 +412,10 @@ namespace Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("bc8862eb-5be7-4dfb-a1e4-b85c7072fb16"),
+                            Id = new Guid("cd7e350c-9e2f-4cd7-898f-7a70c5c6c4de"),
                             Email = "juliamagalhaes@outlook.com",
-                            PasswordHash = "sMjTxzPJm/DGJB3yH2K0nWlLIRJJms6VQx+AqshSyNc=",
-                            SalString = "Ur0j4RP9p9ZZSh/uRx5PJw=="
+                            PasswordHash = "RHK++qjHG1d4Tuo6c0q6lt/8zyAY8HaBBUOGft9ggLk=",
+                            SalString = "PyLrJIQ4d0liMDLOMEmW1A=="
                         });
                 });
 
@@ -449,6 +449,70 @@ namespace Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("usuarios_administrativos");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Users.UsuarioAluno", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AlunoMatricula")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SalString")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AlunoMatricula");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("usuarios_alunos");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Users.UsuarioProfessor", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ProfessorMatricula")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SalString")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("ProfessorMatricula");
+
+                    b.ToTable("usuarios_professores");
                 });
 
             modelBuilder.Entity("Domain.Entities.Administrativo", b =>
@@ -523,6 +587,28 @@ namespace Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Administrativo");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Users.UsuarioAluno", b =>
+                {
+                    b.HasOne("Domain.Entities.Aluno", "Aluno")
+                        .WithMany()
+                        .HasForeignKey("AlunoMatricula")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Aluno");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Users.UsuarioProfessor", b =>
+                {
+                    b.HasOne("Domain.Entities.Professor", "Professor")
+                        .WithMany()
+                        .HasForeignKey("ProfessorMatricula")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Professor");
                 });
 
             modelBuilder.Entity("Domain.Entities.Aluno", b =>
