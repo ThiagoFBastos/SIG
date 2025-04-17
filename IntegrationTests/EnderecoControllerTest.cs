@@ -27,8 +27,6 @@ namespace IntegrationTests
 
         public async Task DisposeAsync()
         {
-            using var scope = _factory.Services.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<RepositoryContext>();
             await Task.CompletedTask;
         }
 
@@ -90,7 +88,7 @@ namespace IntegrationTests
         }
 
         [Fact]
-        public async Task Test_Get_Endereco_Mus_Not_Find()
+        public async Task Test_Get_Endereco_Must_Not_Find()
         {
             Guid enderecoId = Guid.NewGuid();
 
@@ -174,6 +172,10 @@ namespace IntegrationTests
                 casa = 71
             };
 
+            using var scope = _factory.Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<RepositoryContext>();
+            Endereco? endereco = await context.Set<Endereco>().FindAsync(enderecoId);
+
             var response = await _client.PutAsJsonAsync($"/api/Endereco/{enderecoId}", payload);
 
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -192,14 +194,10 @@ namespace IntegrationTests
         public async Task Test_Update_Endereco_Must_Fail_Because_Cidade_Length_Is_Not_Valid(int length)
         {
             Guid enderecoId = Guid.NewGuid();
-            StringBuilder sb = new StringBuilder();
-
-            for (int i = 0; i < length; ++i)
-                sb.Append('A');
 
             var payload = new
             {
-                cidade = sb.ToString(),
+                cidade = new string('x', length),
                 estado = (int)Estado.SP,
                 rua = "Vila do Chaves",
                 cep = "11340400",
@@ -287,16 +285,12 @@ namespace IntegrationTests
         public async Task Test_Update_Endereco_Must_Fail_Because_Rua_Length_Is_Invalid(int length)
         {
             Guid enderecoId = Guid.NewGuid();
-            StringBuilder sb = new StringBuilder();
-
-            for (int i = 0; i < length; ++i)
-                sb.Append('x');
 
             var payload = new
             {
                 cidade = "São Paulo",
                 estado = (int)Estado.SP,
-                rua = sb.ToString(),
+                rua = new string('x', length),
                 cep = "12345678",
                 casa = 71
             };
@@ -349,10 +343,6 @@ namespace IntegrationTests
         public async Task Test_Update_Endereco_Must_Fail_Because_Complemento_Length_Is_Invalid(int length)
         {
             Guid enderecoId = Guid.NewGuid();
-            StringBuilder sb = new StringBuilder();
-
-            for (int i = 0; i < length; ++i)
-                sb.Append('x');
 
             var payload = new
             {
@@ -361,7 +351,7 @@ namespace IntegrationTests
                 rua = "Vila do Chaves",
                 cep = "12345678",
                 casa = 71,
-                complemento = sb.ToString()
+                complemento = new string('x', length)
             };
 
             var response = await _client.PutAsJsonAsync($"/api/Endereco/{enderecoId}", payload);
