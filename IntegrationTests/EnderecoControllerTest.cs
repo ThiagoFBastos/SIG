@@ -176,6 +176,8 @@ namespace IntegrationTests
             var context = scope.ServiceProvider.GetRequiredService<RepositoryContext>();
             Endereco? endereco = await context.Set<Endereco>().FindAsync(enderecoId);
 
+            endereco.Should().BeNull();
+
             var response = await _client.PutAsJsonAsync($"/api/Endereco/{enderecoId}", payload);
 
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
